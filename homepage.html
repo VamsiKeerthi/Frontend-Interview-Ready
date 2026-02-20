@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Frontend Vault</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #080a0f;
+        --surface: #0f1219;
+        --border: rgba(255, 255, 255, 0.07);
+        --accent-html: #e8714a;
+        --accent-js: #f7c948;
+        --text: #dde1f0;
+        --muted: #525870;
+        --muted2: #3a3e52;
+      }
+
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Crimson Pro", Georgia, serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* ── NOISE OVERLAY ── */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 999;
+        opacity: 0.6;
+      }
+
+      /* ── HEADER ── */
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 28px 60px;
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        background: rgba(8, 10, 15, 0.9);
+        backdrop-filter: blur(20px);
+        z-index: 100;
+      }
+
+      .logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.6rem;
+        letter-spacing: 3px;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--accent-js);
+        border-radius: 50%;
+        animation: pulse 2.5s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.4;
+          transform: scale(0.7);
+        }
+      }
+
+      .header-tag {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.62rem;
+        letter-spacing: 3px;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+
+      /* ── HERO ── */
+      .hero {
+        padding: 100px 60px 80px;
+        max-width: 1100px;
+        margin: 0 auto;
+        position: relative;
+      }
+
+      .hero-kicker {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 5px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 28px;
+        opacity: 0;
+        animation: fadeUp 0.7s ease forwards 0.1s;
+      }
+
+      .hero-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: clamp(4.5rem, 12vw, 10rem);
+        line-height: 0.9;
+        letter-spacing: 2px;
+        color: #fff;
+        margin-bottom: 32px;
+        opacity: 0;
+        animation: fadeUp 0.8s ease forwards 0.25s;
+      }
+
+      .hero-title .line-accent-html {
+        color: var(--accent-html);
+      }
+      .hero-title .line-accent-js {
+        color: var(--accent-js);
+      }
+
+      .hero-desc {
+        font-size: 1.15rem;
+        font-style: italic;
+        color: var(--muted);
+        max-width: 540px;
+        line-height: 1.85;
+        opacity: 0;
+        animation: fadeUp 0.8s ease forwards 0.4s;
+      }
+
+      /* ── DECORATIVE BG TEXT ── */
+      .hero-bg-text {
+        position: absolute;
+        top: 60px;
+        right: -20px;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 28vw;
+        color: rgba(255, 255, 255, 0.015);
+        line-height: 1;
+        pointer-events: none;
+        user-select: none;
+        letter-spacing: -5px;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(22px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ── DIVIDER LINE ── */
+      .divider {
+        width: 100%;
+        max-width: 1100px;
+        margin: 0 auto;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--border) 20%,
+          var(--border) 80%,
+          transparent
+        );
+      }
+
+      /* ── COURSES SECTION ── */
+      .courses {
+        padding: 70px 60px 100px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .section-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 5px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .section-label::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      /* ── CARD GRID ── */
+      .card-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      @media (max-width: 720px) {
+        .card-grid {
+          grid-template-columns: 1fr;
+        }
+        header {
+          padding: 20px 24px;
+        }
+        .hero {
+          padding: 64px 24px 60px;
+        }
+        .courses {
+          padding: 50px 24px 80px;
+        }
+        .footer-inner {
+          padding: 40px 24px;
+        }
+      }
+
+      /* ── COURSE CARD ── */
+      .course-card {
+        display: block;
+        text-decoration: none;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 44px 40px 40px;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        transition:
+          border-color 0.3s,
+          transform 0.3s;
+        opacity: 0;
+        animation: fadeUp 0.7s ease forwards;
+      }
+
+      .course-card:nth-child(1) {
+        animation-delay: 0.55s;
+      }
+      .course-card:nth-child(2) {
+        animation-delay: 0.7s;
+      }
+
+      .course-card:hover {
+        transform: translateY(-4px);
+      }
+
+      /* Bottom accent bar */
+      .course-card::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .card-html::after {
+        background: var(--accent-html);
+        border-color: var(--accent-html);
+      }
+      .card-js::after {
+        background: var(--accent-js);
+        border-color: var(--accent-js);
+      }
+
+      .course-card:hover::after {
+        transform: scaleX(1);
+      }
+
+      .card-html:hover {
+        border-color: rgba(232, 113, 74, 0.25);
+      }
+      .card-js:hover {
+        border-color: rgba(247, 201, 72, 0.25);
+      }
+
+      /* Radial glow on hover */
+      .course-card::before {
+        content: "";
+        position: absolute;
+        top: -60%;
+        left: -20%;
+        width: 140%;
+        height: 140%;
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.5s;
+        pointer-events: none;
+      }
+
+      .card-html::before {
+        background: radial-gradient(
+          circle,
+          rgba(232, 113, 74, 0.07),
+          transparent 65%
+        );
+      }
+      .card-js::before {
+        background: radial-gradient(
+          circle,
+          rgba(247, 201, 72, 0.07),
+          transparent 65%
+        );
+      }
+
+      .course-card:hover::before {
+        opacity: 1;
+      }
+
+      /* Card content */
+      .card-number {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 5.5rem;
+        line-height: 1;
+        margin-bottom: 16px;
+        letter-spacing: 1px;
+        opacity: 0.12;
+        transition: opacity 0.3s;
+      }
+
+      .card-html .card-number {
+        color: var(--accent-html);
+      }
+      .card-js .card-number {
+        color: var(--accent-js);
+      }
+
+      .course-card:hover .card-number {
+        opacity: 0.22;
+      }
+
+      .card-tag {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.58rem;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 4px 10px;
+        border-radius: 2px;
+        border: 1px solid;
+      }
+
+      .card-html .card-tag {
+        color: var(--accent-html);
+        border-color: rgba(232, 113, 74, 0.25);
+        background: rgba(232, 113, 74, 0.06);
+      }
+      .card-js .card-tag {
+        color: var(--accent-js);
+        border-color: rgba(247, 201, 72, 0.25);
+        background: rgba(247, 201, 72, 0.06);
+      }
+
+      .card-title {
+        font-family: "DM Serif Display", Georgia, serif;
+        font-size: 2.4rem;
+        color: #fff;
+        line-height: 1.1;
+        margin-bottom: 16px;
+        letter-spacing: -0.5px;
+      }
+
+      .card-title em {
+        font-style: italic;
+      }
+
+      .card-html .card-title em {
+        color: var(--accent-html);
+      }
+      .card-js .card-title em {
+        color: var(--accent-js);
+      }
+
+      .card-desc {
+        font-size: 0.92rem;
+        color: var(--muted);
+        line-height: 1.85;
+        margin-bottom: 28px;
+        font-style: italic;
+      }
+
+      /* Topics list */
+      .card-topics {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 36px;
+      }
+
+      .topic-pill {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.58rem;
+        padding: 3px 9px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        color: var(--muted);
+        letter-spacing: 0.5px;
+      }
+
+      /* Card CTA */
+      .card-cta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-top: 1px solid var(--border);
+        padding-top: 24px;
+      }
+
+      .cta-stats {
+        display: flex;
+        gap: 24px;
+      }
+
+      .stat {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .stat-n {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.6rem;
+        line-height: 1;
+      }
+
+      .card-html .stat-n {
+        color: var(--accent-html);
+      }
+      .card-js .stat-n {
+        color: var(--accent-js);
+      }
+
+      .stat-l {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.52rem;
+        letter-spacing: 2px;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+
+      .cta-arrow {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+        color: var(--muted);
+        flex-shrink: 0;
+      }
+
+      .card-html:hover .cta-arrow {
+        background: var(--accent-html);
+        border-color: var(--accent-html);
+        color: #fff;
+        transform: rotate(45deg);
+      }
+      .card-js:hover .cta-arrow {
+        background: var(--accent-js);
+        border-color: var(--accent-js);
+        color: #000;
+        transform: rotate(45deg);
+      }
+
+      /* ── FEATURES STRIP ── */
+      .features {
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+      }
+
+      .features-inner {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 40px 60px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+      }
+
+      @media (max-width: 800px) {
+        .features-inner {
+          grid-template-columns: 1fr 1fr;
+          padding: 32px 24px;
+        }
+      }
+
+      .feature {
+        padding: 20px 28px;
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .feature:last-child {
+        border-right: none;
+      }
+
+      .feature-icon {
+        font-size: 1.4rem;
+        margin-bottom: 4px;
+      }
+
+      .feature-name {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.68rem;
+        letter-spacing: 1px;
+        color: var(--text);
+        text-transform: uppercase;
+      }
+
+      .feature-desc {
+        font-size: 0.82rem;
+        color: var(--muted);
+        line-height: 1.6;
+        font-style: italic;
+      }
+
+      /* ── TESTIMONIAL / QUOTE SECTION ── */
+      .quote-section {
+        padding: 90px 60px;
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 60px;
+        align-items: center;
+      }
+
+      @media (max-width: 800px) {
+        .quote-section {
+          grid-template-columns: 1fr;
+          padding: 60px 24px;
+          gap: 40px;
+        }
+      }
+
+      .quote-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 4px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 20px;
+      }
+
+      .quote-headline {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 3.5rem;
+        color: #fff;
+        line-height: 1;
+        letter-spacing: 1px;
+      }
+
+      .quote-headline span {
+        color: var(--accent-js);
+      }
+
+      .big-quote {
+        font-family: "DM Serif Display", Georgia, serif;
+        font-size: 1.45rem;
+        font-style: italic;
+        color: var(--text);
+        line-height: 1.7;
+        padding-left: 28px;
+        border-left: 3px solid var(--accent-html);
+        opacity: 0.85;
+      }
+
+      .quote-source {
+        margin-top: 20px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.62rem;
+        letter-spacing: 2px;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+
+      /* ── FOOTER ── */
+      footer {
+        border-top: 1px solid var(--border);
+        background: var(--surface);
+      }
+
+      .footer-inner {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 50px 60px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 30px;
+        flex-wrap: wrap;
+      }
+
+      .footer-brand {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2.5rem;
+        letter-spacing: 3px;
+        color: rgba(255, 255, 255, 0.08);
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 30px;
+        align-items: center;
+      }
+
+      .footer-link {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.62rem;
+        letter-spacing: 2px;
+        color: var(--muted);
+        text-decoration: none;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: color 0.2s;
+      }
+
+      .footer-link:hover {
+        color: var(--text);
+      }
+
+      .footer-note {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.58rem;
+        color: var(--muted2);
+        letter-spacing: 1px;
+        margin-top: 20px;
+        text-align: center;
+        padding-bottom: 8px;
+      }
+
+      /* ── SCROLL PROGRESS BAR ── */
+      .scroll-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          var(--accent-html),
+          var(--accent-js)
+        );
+        width: 0%;
+        z-index: 200;
+        transition: width 0.1s;
+      }
+
+      /* ── CURSOR GLOW ── */
+      .cursor-glow {
+        position: fixed;
+        width: 350px;
+        height: 350px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(247, 201, 72, 0.03) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+        z-index: 1;
+        transform: translate(-50%, -50%);
+        transition:
+          left 0.15s ease,
+          top 0.15s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="scroll-bar" id="scrollBar"></div>
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <!-- ── HEADER ── -->
+    <header>
+      <div class="logo">
+        <div class="logo-dot"></div>
+        THE FRONTEND VAULT
+      </div>
+      <div class="header-tag">Frontend Mastery Series</div>
+    </header>
+
+    <!-- ── HERO ── -->
+    <section class="hero">
+      <div class="hero-bg-text">FE</div>
+      <p class="hero-kicker">// Choose your course</p>
+      <h1 class="hero-title">
+        <span class="line-accent-html">LAND</span><br />
+        THE JOB<br />
+        <span class="line-accent-js">YOU WANT</span>
+      </h1>
+      <p class="hero-desc">
+        Two deeply detailed, interactive interview courses. Master the concepts
+        that separate senior developers from the rest — explained from first
+        principles.
+      </p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── FEATURES ── -->
+    <section class="features">
+      <div class="features-inner">
+        <div class="feature">
+          <div class="feature-icon">📖</div>
+          <div class="feature-name">Deep Explanations</div>
+          <div class="feature-desc">
+            Not just what, but why — every concept explained from the engine up
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">💻</div>
+          <div class="feature-name">100+ Code Examples</div>
+          <div class="feature-desc">
+            Annotated, runnable examples with real-world patterns
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-name">Interview-Focused</div>
+          <div class="feature-desc">
+            Answers shaped for technical interviews, not textbooks
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🗺️</div>
+          <div class="feature-name">Progress Tracking</div>
+          <div class="feature-desc">
+            Visual progress bar so you know exactly where you stand
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── COURSES ── -->
+    <section class="courses">
+      <div class="section-label">Select your course</div>
+
+      <div class="card-grid">
+        <!-- HTML/CSS Card -->
+        <a class="course-card card-html" href="html-css-interview-course.html">
+          <div class="card-number">01</div>
+          <div class="card-tag">◆ Course One</div>
+          <h2 class="card-title">HTML &amp; <em>CSS</em> Interview Prep</h2>
+          <p class="card-desc">
+            From semantic markup and specificity wars to modern Flexbox, Grid,
+            and responsive design — everything interviewers actually ask about.
+          </p>
+
+          <div class="card-topics">
+            <span class="topic-pill">Semantic HTML</span>
+            <span class="topic-pill">Box Model</span>
+            <span class="topic-pill">Specificity</span>
+            <span class="topic-pill">Flexbox</span>
+            <span class="topic-pill">CSS Grid</span>
+            <span class="topic-pill">Responsive Design</span>
+            <span class="topic-pill">Pseudo-classes</span>
+            <span class="topic-pill">Animations</span>
+            <span class="topic-pill">BEM</span>
+            <span class="topic-pill">Performance</span>
+          </div>
+
+          <div class="card-cta">
+            <div class="cta-stats">
+              <div class="stat">
+                <div class="stat-n">12</div>
+                <div class="stat-l">Modules</div>
+              </div>
+              <div class="stat">
+                <div class="stat-n">80+</div>
+                <div class="stat-l">Questions</div>
+              </div>
+              <div class="stat">
+                <div class="stat-n">★</div>
+                <div class="stat-l">Cheat Sheet</div>
+              </div>
+            </div>
+            <div class="cta-arrow">↗</div>
+          </div>
+        </a>
+
+        <!-- JS Card -->
+        <a
+          class="course-card card-js"
+          href="javascript-interview-course-detailed(1).html"
+        >
+          <div class="card-number">02</div>
+          <div class="card-tag">◆ Course Two</div>
+          <h2 class="card-title">JavaScript <em>Deep Dive</em></h2>
+          <p class="card-desc">
+            Execution contexts, closures, the event loop, async/await internals
+            — the concepts that define a senior JavaScript engineer.
+          </p>
+
+          <div class="card-topics">
+            <span class="topic-pill">Execution Context</span>
+            <span class="topic-pill">Closures</span>
+            <span class="topic-pill">this Binding</span>
+            <span class="topic-pill">Hoisting</span>
+            <span class="topic-pill">Prototypes</span>
+            <span class="topic-pill">Event Loop</span>
+            <span class="topic-pill">Promises</span>
+            <span class="topic-pill">async/await</span>
+            <span class="topic-pill">Immutability</span>
+            <span class="topic-pill">Array Methods</span>
+          </div>
+
+          <div class="card-cta">
+            <div class="cta-stats">
+              <div class="stat">
+                <div class="stat-n">12</div>
+                <div class="stat-l">Modules</div>
+              </div>
+              <div class="stat">
+                <div class="stat-n">64+</div>
+                <div class="stat-l">Questions</div>
+              </div>
+              <div class="stat">
+                <div class="stat-n">★</div>
+                <div class="stat-l">Cheat Sheet</div>
+              </div>
+            </div>
+            <div class="cta-arrow">↗</div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── QUOTE SECTION ── -->
+    <section class="quote-section">
+      <div>
+        <div class="quote-label">The philosophy</div>
+        <div class="quote-headline">WHY THIS <span>EXISTS</span></div>
+      </div>
+      <div>
+        <p class="big-quote">
+          Most interview prep teaches you to parrot answers. This teaches you to
+          <em>understand</em> — so when the interviewer goes off-script, you can
+          reason through any question they throw at you.
+        </p>
+        <div class="quote-source">
+          // Built for engineers who want to understand, not memorize
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-brand">INTERVIEW READY</div>
+        <div class="footer-links">
+          <a class="footer-link" href="html-css-interview-course.html"
+            >HTML &amp; CSS Course</a
+          >
+          <a
+            class="footer-link"
+            href="javascript-interview-course-detailed.html"
+            >JavaScript Course</a
+          >
+        </div>
+      </div>
+      <div class="footer-note">
+        Frontend Mastery Series · VAMSI KEERTHI · 2025 Edition
+      </div>
+    </footer>
+
+    <script>
+      // Scroll progress bar
+      window.addEventListener("scroll", () => {
+        const pct =
+          (window.scrollY / (document.body.scrollHeight - window.innerHeight)) *
+          100;
+        document.getElementById("scrollBar").style.width = pct + "%";
+        localStorage.setItem("scrollProgress", pct);
+      });
+
+      // Cursor glow
+      const glow = document.getElementById("cursorGlow");
+      document.addEventListener("mousemove", (e) => {
+        glow.style.left = e.clientX + "px";
+        glow.style.top = e.clientY + "px";
+      });
+
+      // Shift glow color on card hover
+      document
+        .querySelector(".card-html")
+        .addEventListener("mouseenter", () => {
+          glow.style.background =
+            "radial-gradient(circle, rgba(232,113,74,0.06) 0%, transparent 70%)";
+        });
+      document.querySelector(".card-js").addEventListener("mouseenter", () => {
+        glow.style.background =
+          "radial-gradient(circle, rgba(247,201,72,0.06) 0%, transparent 70%)";
+      });
+      document.querySelectorAll(".course-card").forEach((c) => {
+        c.addEventListener("mouseleave", () => {
+          glow.style.background =
+            "radial-gradient(circle, rgba(247,201,72,0.03) 0%, transparent 70%)";
+        });
+      });
+    </script>
+  </body>
+</html>
