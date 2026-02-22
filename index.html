@@ -529,6 +529,43 @@
       .card-react:hover .card-number {
         opacity: 0.22;
       }
+      .card-fsd::after {
+        background: #a78bfa;
+        border-color: #a78bfa;
+      }
+      .card-fsd:hover {
+        border-color: rgba(167, 139, 250, 0.25);
+      }
+      .card-fsd::before {
+        background: radial-gradient(
+          circle,
+          rgba(167, 139, 250, 0.07),
+          transparent 65%
+        );
+      }
+      .card-fsd .card-number {
+        color: #a78bfa;
+      }
+      .card-fsd .card-tag {
+        color: #a78bfa;
+        border-color: rgba(167, 139, 250, 0.25);
+        background: rgba(167, 139, 250, 0.06);
+      }
+      .card-fsd .card-title em {
+        color: #a78bfa;
+      }
+      .card-fsd .stat-n {
+        color: #a78bfa;
+      }
+      .card-fsd:hover .cta-arrow {
+        background: #a78bfa;
+        border-color: #a78bfa;
+        color: #000;
+        transform: rotate(45deg);
+      }
+      .card-fsd:hover .card-number {
+        opacity: 0.22;
+      }
       .card-js:hover .cta-arrow {
         background: var(--accent-js);
         border-color: var(--accent-js);
@@ -758,16 +795,13 @@
     <!-- ── HERO ── -->
     <section class="hero">
       <div class="hero-bg-text">FE</div>
-      <p class="hero-kicker">// Choose your course</p>
       <h1 class="hero-title">
-        <span class="line-accent-html">LAND</span><br />
-        THE JOB<br />
-        <span class="line-accent-js">YOU WANT</span>
+        <span class="line-accent-html">MASTER</span><br />
+        THE<br />
+        <span class="line-accent-js">FRONTEND</span>
       </h1>
       <p class="hero-desc">
-        Two deeply detailed, interactive interview courses. Master the concepts
-        that separate senior developers from the rest — explained from first
-        principles.
+        Learn Frontend the right way — explained from first principles.
       </p>
     </section>
 
@@ -939,6 +973,47 @@
             <div class="cta-arrow">↗</div>
           </div>
         </a>
+
+        <!--Frontend System Design Card -->
+        <a
+          class="course-card card-fsd"
+          href="frontend-system-design-course.html"
+        >
+          <div class="card-number">04</div>
+          <div class="card-tag">◆ Course Four</div>
+          <h2 class="card-title">Frontend <em>System Design</em></h2>
+          <p class="card-desc">
+            Browser Rednering Pipeline, Component Architecture, State
+            Management, Data Fetching — all explained from first principles.
+          </p>
+          <div class="card-topics">
+            <span class="topic-pill">Rendering Pipeline</span>
+            <span class="topic-pill">Component Architecture</span>
+            <span class="topic-pill">State Management</span>
+            <span class="topic-pill">Data Fetching</span>
+            <span class="topic-pill">Accessibility</span>
+            <span class="topic-pill">Security</span>
+            <span class="topic-pill">Caching</span>
+            <span class="topic-pill">Performance</span>
+          </div>
+          <div class="card-cta">
+            <div class="cta-stats">
+              <div class="stat">
+                <div class="stat-n">10</div>
+                <div class="stat-l">Modules</div>
+              </div>
+              <div class="stat">
+                <div class="stat-n">80+</div>
+                <div class="stat-l">Questions</div>
+              </div>
+              <div class="stat">
+                <div class="stat-n">★</div>
+                <div class="stat-l">Cheat Sheet</div>
+              </div>
+            </div>
+            <div class="cta-arrow">↗</div>
+          </div>
+        </a>
       </div>
     </section>
 
@@ -977,6 +1052,12 @@
           >
           <a class="footer-link" href="react-interview-course.html"
             >React Course</a
+          >
+          <a class="footer-link" href="frontend-system-design-course.html"
+            >Frontend System Design Course</a
+          >
+          <a class="footer-link" href="frontend-interview-roundup.html"
+            >Frontend Interview Roundup</a
           >
         </div>
       </div>
@@ -1022,6 +1103,10 @@
           glow.style.background =
             "radial-gradient(circle, rgba(97,218,251,0.06) 0%, transparent 70%)";
         });
+      document.querySelector(".card-fsd").addEventListener("mouseenter", () => {
+        glow.style.background =
+          "radial-gradient(circle, rgba(167,139,250,0.3) 0%, transparent 70%)";
+      });
       document.querySelectorAll(".course-card").forEach((c) => {
         c.addEventListener("mouseleave", () => {
           glow.style.background =

@@ -1,0 +1,4129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frontend System Design — Interview Ready</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #07080f;
+        --surface: #0e0f1a;
+        --surface2: #141525;
+        --surface3: #1c1e33;
+        --accent: #a78bfa;
+        --accent2: #f472b6;
+        --accent3: #34d399;
+        --accent4: #fb923c;
+        --text: #dde0f0;
+        --muted: #5a5e7a;
+        --border: rgba(255, 255, 255, 0.06);
+        --border-hover: rgba(167, 139, 250, 0.3);
+        --code-bg: #07080d;
+        --sidebar-w: 290px;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Crimson Pro", Georgia, serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      ::-webkit-scrollbar {
+        width: 3px;
+        height: 3px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(167, 139, 250, 0.2);
+        border-radius: 2px;
+      }
+      .app {
+        display: flex;
+        min-height: 100vh;
+      }
+      .sidebar {
+        width: var(--sidebar-w);
+        min-width: var(--sidebar-w);
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(167, 139, 250, 0.15) transparent;
+        display: flex;
+        flex-direction: column;
+      }
+      .sidebar-brand {
+        padding: 24px 22px 16px;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+      .brand-fsd {
+        font-family: "Syne", sans-serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--accent);
+        line-height: 1.2;
+        letter-spacing: -0.5px;
+      }
+      .brand-sub {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.58rem;
+        letter-spacing: 3px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-top: 6px;
+      }
+      .prog-wrap {
+        padding: 14px 22px;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+      .prog-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 7px;
+      }
+      .prog-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.58rem;
+        letter-spacing: 2px;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+      .prog-pct {
+        font-family: "Syne", sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--accent);
+      }
+      .prog-track {
+        height: 2px;
+        background: var(--border);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .prog-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), var(--accent2));
+        width: 0%;
+        transition: width 0.5s ease;
+        border-radius: 2px;
+      }
+      .nav-group {
+        border-bottom: 1px solid var(--border);
+        padding: 8px 0;
+      }
+      .nav-group-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.56rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--muted);
+        padding: 8px 22px 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .nav-group-label span {
+        width: 16px;
+        height: 16px;
+        background: var(--surface3);
+        border-radius: 3px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.5rem;
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 22px;
+        cursor: pointer;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--muted);
+        border-left: 2px solid transparent;
+        transition: all 0.18s;
+        line-height: 1.3;
+        user-select: none;
+      }
+      .nav-item:hover {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .nav-item.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+        background: rgba(167, 139, 250, 0.05);
+      }
+      .nav-item.visited:not(.active) {
+        color: rgba(52, 211, 153, 0.7);
+      }
+      .nav-item .ni-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: currentColor;
+        flex-shrink: 0;
+        opacity: 0.7;
+      }
+      .nav-item.visited:not(.active) .ni-dot {
+        background: var(--accent3);
+      }
+      .main {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+      }
+      .hero {
+        padding: 70px 72px 54px;
+        background: linear-gradient(
+          135deg,
+          #07080f 0%,
+          #0c0d1e 60%,
+          #080910 100%
+        );
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: -120px;
+        right: -80px;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(
+          circle,
+          rgba(167, 139, 250, 0.07) 0%,
+          transparent 65%
+        );
+        pointer-events: none;
+      }
+      .hero::after {
+        content: "FSD";
+        position: absolute;
+        bottom: -20px;
+        right: 20px;
+        font-family: "Georgia", serif;
+        font-size: 16rem;
+        font-weight: 800;
+        color: rgba(167, 139, 250, 0.03);
+        line-height: 1;
+        pointer-events: none;
+        user-select: none;
+      }
+      .hero-eyebrow {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.68rem;
+        letter-spacing: 4px;
+        color: var(--accent);
+        text-transform: uppercase;
+        margin-bottom: 18px;
+      }
+      .hero-title {
+        font-family: "Syne", sans-serif;
+        font-size: 4rem;
+        font-weight: 800;
+        line-height: 1.05;
+        color: #fff;
+        letter-spacing: -2px;
+        margin-bottom: 20px;
+      }
+      .hero-title em {
+        font-style: normal;
+        color: var(--accent);
+      }
+      .hero-desc {
+        font-size: 1.05rem;
+        color: var(--muted);
+        max-width: 580px;
+        line-height: 1.75;
+        font-style: italic;
+      }
+      .hero-stats {
+        display: flex;
+        gap: 40px;
+        margin-top: 40px;
+      }
+      .stat-num {
+        font-family: "Syne", sans-serif;
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .stat-lbl {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.58rem;
+        letter-spacing: 2px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
+      .content {
+        padding: 0 72px 80px;
+      }
+      .section {
+        padding: 56px 0 40px;
+        border-bottom: 1px solid var(--border);
+        display: none;
+        animation: fadeIn 0.4s ease;
+      }
+      .section.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .section-head {
+        display: flex;
+        align-items: flex-start;
+        gap: 18px;
+        margin-bottom: 36px;
+      }
+      .sec-num {
+        font-family: "Georgia", serif;
+        font-size: 4.5rem;
+        font-weight: 800;
+        color: rgba(167, 139, 250, 0.1);
+        line-height: 1;
+        flex-shrink: 0;
+        letter-spacing: -3px;
+        min-width: 90px;
+        text-align: right;
+      }
+      .sec-title {
+        font-family: "Georgia", serif;
+        font-size: 2rem;
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.5px;
+      }
+      .sec-sub {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.65rem;
+        color: var(--muted);
+        letter-spacing: 2px;
+        margin-top: 6px;
+      }
+      .topic-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-bottom: 28px;
+      }
+      .topic {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.6rem;
+        letter-spacing: 1px;
+        padding: 3px 9px;
+        border-radius: 2px;
+        background: rgba(167, 139, 250, 0.08);
+        color: var(--accent);
+        border: 1px solid rgba(167, 139, 250, 0.15);
+      }
+      .topic.g {
+        background: rgba(52, 211, 153, 0.08);
+        color: var(--accent3);
+        border-color: rgba(52, 211, 153, 0.15);
+      }
+      .topic.r {
+        background: rgba(244, 114, 182, 0.08);
+        color: var(--accent2);
+        border-color: rgba(244, 114, 182, 0.15);
+      }
+      .topic.o {
+        background: rgba(251, 146, 60, 0.08);
+        color: var(--accent4);
+        border-color: rgba(251, 146, 60, 0.15);
+      }
+      .qa {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        margin-bottom: 12px;
+        overflow: hidden;
+        transition: border-color 0.2s;
+      }
+      .qa:hover {
+        border-color: var(--border-hover);
+      }
+      .qa-q {
+        padding: 18px 22px;
+        cursor: pointer;
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        user-select: none;
+      }
+      .qa-n {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.6rem;
+        color: var(--accent);
+        letter-spacing: 1px;
+        flex-shrink: 0;
+        margin-top: 2px;
+        min-width: 36px;
+      }
+      .qa-text {
+        font-family: "Georgia", serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text);
+        flex: 1;
+        line-height: 1.4;
+      }
+      .qa-tog {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 1.1rem;
+        color: var(--muted);
+        flex-shrink: 0;
+        transition:
+          transform 0.25s,
+          color 0.2s;
+        margin-top: 1px;
+      }
+      .qa.open .qa-tog {
+        transform: rotate(45deg);
+        color: var(--accent);
+      }
+      .qa-a {
+        display: none;
+        padding: 4px 22px 26px 72px;
+        border-top: 1px solid var(--border);
+      }
+      .qa.open .qa-a {
+        display: block;
+        animation: slideDown 0.25s ease;
+      }
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .qa-a p {
+        font-size: 0.93rem;
+        color: rgba(221, 224, 240, 0.85);
+        line-height: 1.9;
+        margin-top: 14px;
+      }
+      .qa-a p strong {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .qa-a p em {
+        color: var(--accent3);
+        font-style: normal;
+      }
+      .qa-a h4 {
+        font-family: "Georgia", serif;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-top: 20px;
+        margin-bottom: 6px;
+      }
+      .qa-a ul {
+        margin-top: 10px;
+        padding-left: 0;
+        list-style: none;
+      }
+      .qa-a ul li {
+        font-size: 0.9rem;
+        color: rgba(221, 224, 240, 0.8);
+        line-height: 1.8;
+        padding: 4px 0 4px 18px;
+        position: relative;
+      }
+      .qa-a ul li::before {
+        content: "›";
+        position: absolute;
+        left: 0;
+        color: var(--accent);
+        font-weight: 700;
+      }
+      pre {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+        border-radius: 2px;
+        padding: 18px 22px;
+        margin-top: 14px;
+        overflow-x: auto;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.74rem;
+        line-height: 1.9;
+        color: #c5c8e0;
+      }
+      .kw {
+        color: #a78bfa;
+      }
+      .fn {
+        color: #fb923c;
+      }
+      .str {
+        color: #34d399;
+      }
+      .cm {
+        color: #2a2e45;
+        font-style: italic;
+      }
+      .num {
+        color: #f0a04b;
+      }
+      .op {
+        color: #f472b6;
+      }
+      .prop {
+        color: #90caf9;
+      }
+      .cls {
+        color: #67e8f9;
+      }
+      .callout {
+        border-radius: 2px;
+        padding: 16px 20px;
+        margin-top: 14px;
+        border-left: 3px solid;
+      }
+      .callout-title {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.58rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .callout p {
+        font-size: 0.88rem;
+        line-height: 1.8;
+        margin-top: 0 !important;
+        color: var(--text) !important;
+        opacity: 0.9;
+      }
+      .callout ul {
+        margin-top: 6px !important;
+      }
+      .callout ul li {
+        font-size: 0.88rem !important;
+        color: var(--text) !important;
+        opacity: 0.9;
+      }
+      .callout.warn {
+        background: rgba(167, 139, 250, 0.05);
+        border-color: var(--accent);
+      }
+      .callout.warn .callout-title {
+        color: var(--accent);
+      }
+      .callout.tip {
+        background: rgba(52, 211, 153, 0.05);
+        border-color: var(--accent3);
+      }
+      .callout.tip .callout-title {
+        color: var(--accent3);
+      }
+      .callout.danger {
+        background: rgba(244, 114, 182, 0.05);
+        border-color: var(--accent2);
+      }
+      .callout.danger .callout-title {
+        color: var(--accent2);
+      }
+      .callout.info {
+        background: rgba(251, 146, 60, 0.05);
+        border-color: var(--accent4);
+      }
+      .callout.info .callout-title {
+        color: var(--accent4);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 14px;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.72rem;
+      }
+      th {
+        background: rgba(167, 139, 250, 0.08);
+        color: var(--accent);
+        text-align: left;
+        padding: 10px 14px;
+        letter-spacing: 2px;
+        font-size: 0.58rem;
+        text-transform: uppercase;
+        border: 1px solid var(--border);
+      }
+      td {
+        padding: 9px 14px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        vertical-align: top;
+        line-height: 1.6;
+      }
+      td strong {
+        color: var(--text);
+      }
+      td em {
+        color: var(--accent3);
+        font-style: normal;
+      }
+      .bottom-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 32px 0 0;
+        margin-top: 20px;
+        border-top: 1px solid var(--border);
+      }
+      .btn {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        padding: 11px 24px;
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-transform: uppercase;
+        background: transparent;
+        color: var(--muted);
+      }
+      .btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: rgba(167, 139, 250, 0.05);
+      }
+      .btn.primary {
+        background: rgba(167, 139, 250, 0.1);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .ov-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-top: 28px;
+      }
+      .ov-card {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        padding: 22px;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        overflow: hidden;
+      }
+      .ov-card:hover {
+        border-color: var(--border-hover);
+        background: var(--surface3);
+      }
+      .ov-card::before {
+        content: attr(data-n);
+        position: absolute;
+        top: -8px;
+        right: 12px;
+        font-family: "Georgia", serif;
+        font-size: 4rem;
+        font-weight: 800;
+        color: rgba(167, 139, 250, 0.06);
+        line-height: 1;
+      }
+      .ov-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.58rem;
+        color: var(--accent);
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+      }
+      .ov-name {
+        font-family: "Syne", sans-serif;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 8px;
+      }
+      .ov-desc {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.58rem;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .cheat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-top: 24px;
+      }
+      .cheat-card {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        padding: 18px;
+      }
+      .cheat-title {
+        font-family: "Georgia", serif;
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+      .ci {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 5px 0;
+        border-bottom: 1px solid var(--border);
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.64rem;
+        line-height: 1.4;
+      }
+      .ci:last-child {
+        border-bottom: none;
+      }
+      .ci-k {
+        color: var(--muted);
+        flex: 1;
+      }
+      .ci-v {
+        color: var(--accent3);
+        text-align: right;
+        flex-shrink: 0;
+        max-width: 60%;
+      }
+      .diagram {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 2px;
+        padding: 18px;
+        margin-top: 14px;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 0.7rem;
+        line-height: 2.2;
+        text-align: center;
+      }
+      .d-box {
+        display: inline-block;
+        padding: 4px 10px;
+        border: 1px solid var(--accent);
+        border-radius: 2px;
+        color: var(--accent);
+        margin: 2px;
+      }
+      .d-box.r {
+        border-color: var(--accent2);
+        color: var(--accent2);
+      }
+      .d-box.g {
+        border-color: var(--accent3);
+        color: var(--accent3);
+      }
+      .d-box.o {
+        border-color: var(--accent4);
+        color: var(--accent4);
+      }
+      .d-arrow {
+        color: var(--muted);
+        margin: 0 4px;
+      }
+      .menu-toggle {
+        display: none;
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 1rem;
+        padding: 6px 11px;
+        cursor: pointer;
+        border-radius: 2px;
+        transition: all 0.2s;
+        align-items: center;
+        gap: 6px;
+        font-family: "Courier New", Courier, monospace;
+        letter-spacing: 1px;
+      }
+      .menu-toggle:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .nav-drawer {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow-y: auto;
+      }
+      @media (max-width: 768px) {
+        :root {
+          --sidebar-w: 100%;
+        }
+        .app {
+          flex-direction: column;
+        }
+        .sidebar {
+          width: 100%;
+          min-width: 100%;
+          height: auto;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 200;
+          flex-direction: column;
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+          max-height: 100vh;
+          overflow: hidden;
+        }
+        .sidebar-brand {
+          padding: 12px 18px 8px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-direction: row;
+          border-bottom: none;
+        }
+        .brand-sub {
+          display: none;
+        }
+        .prog-wrap {
+          padding: 0 18px 10px;
+          border-bottom: none;
+        }
+        .menu-toggle {
+          display: flex;
+        }
+        .nav-drawer {
+          max-height: 0;
+          overflow: hidden;
+          transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .nav-drawer.open {
+          max-height: 70vh;
+          overflow-y: auto;
+        }
+        .main {
+          padding-top: 110px;
+          overflow-y: auto;
+          height: auto;
+        }
+        .hero {
+          padding: 38px 22px 32px;
+        }
+        .hero-title {
+          font-size: 2.5rem;
+        }
+        .hero-stats {
+          gap: 20px;
+          flex-wrap: wrap;
+        }
+        .content {
+          padding: 0 22px 60px;
+        }
+        .section {
+          padding: 36px 0 28px;
+        }
+        .sec-num {
+          font-size: 3rem;
+          min-width: 60px;
+        }
+        .sec-title {
+          font-size: 1.5rem;
+        }
+        .qa-a {
+          padding: 4px 14px 20px 14px;
+        }
+        pre {
+          font-size: 0.67rem;
+          padding: 13px 14px;
+        }
+        table {
+          font-size: 0.64rem;
+        }
+        th,
+        td {
+          padding: 7px 10px;
+        }
+        .bottom-nav {
+          flex-direction: column;
+          gap: 10px;
+        }
+        .btn {
+          width: 100%;
+          text-align: center;
+        }
+        .ov-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .cheat-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 480px) {
+        .ov-grid {
+          grid-template-columns: 1fr;
+        }
+        .hero-title {
+          font-size: 2rem;
+        }
+        .section-head {
+          flex-direction: column;
+          gap: 6px;
+        }
+        .sec-num {
+          font-size: 2.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <nav class="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-fsd">Frontend<br />System Design</div>
+          <div class="brand-sub">Interview Ready · 2025</div>
+        </div>
+        <div class="prog-wrap">
+          <div class="prog-row">
+            <span class="prog-label">Progress</span
+            ><span class="prog-pct" id="pct">0%</span>
+          </div>
+          <div class="prog-track"><div class="prog-fill" id="fill"></div></div>
+        </div>
+        <button class="menu-toggle" onclick="toggleMenu()" id="menuBtn">
+          ☰ Menu
+        </button>
+        <div class="nav-drawer" id="navDrawer">
+          <div class="nav-group">
+            <div class="nav-group-label"><span>◉</span> Start</div>
+            <div class="nav-item" data-s="overview" onclick="go('overview')">
+              <span class="ni-dot"></span>Overview
+            </div>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-label"><span>1</span> Browser</div>
+            <div class="nav-item" data-s="s1" onclick="go('s1')">
+              <span class="ni-dot"></span>Browser & Web Internals
+            </div>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-label"><span>2</span> JS Engine</div>
+            <div class="nav-item" data-s="s2" onclick="go('s2')">
+              <span class="ni-dot"></span>JavaScript Execution Model
+            </div>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-label"><span>3</span> Architecture</div>
+            <div class="nav-item" data-s="s3" onclick="go('s3')">
+              <span class="ni-dot"></span>Component & UI Architecture
+            </div>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-label"><span>4</span> State</div>
+            <div class="nav-item" data-s="s4" onclick="go('s4')">
+              <span class="ni-dot"></span>State Management
+            </div>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-label"><span>5</span> Data</div>
+            <div class="nav-item" data-s="s5" onclick="go('s5')">
+              <span class="ni-dot"></span>Data Fetching & UX
+            </div>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-label"><span>6</span> Perf</div>
+            <div class="nav-item" data-s="s6" onclick="go('s6')">
+              <span class="ni-dot"></span>Performance Optimization
+            </div>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-label"><span>7</span> Cache</div>
+            <div class="nav-item" data-s="s7" onclick="go('s7')">
+              <span class="ni-dot"></span>Caching & Offline
+            </div>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-label"><span>8</span> Security</div>
+            <div class="nav-item" data-s="s8" onclick="go('s8')">
+              <span class="ni-dot"></span>Security
+            </div>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-label"><span>9</span> a11y</div>
+            <div class="nav-item" data-s="s9" onclick="go('s9')">
+              <span class="ni-dot"></span>Accessibility
+            </div>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-label"><span>10</span> Practice</div>
+            <div class="nav-item" data-s="s10" onclick="go('s10')">
+              <span class="ni-dot"></span>System Design Practice
+            </div>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-label"><span>★</span> Final</div>
+            <div class="nav-item" data-s="s11" onclick="go('s11')">
+              <span class="ni-dot"></span>Cheat Sheet
+            </div>
+          </div>
+        </div>
+      </nav>
+      <main class="main">
+        <div class="hero">
+          <div class="hero-eyebrow">
+            Complete Interview Course · 2025 Edition
+          </div>
+          <h1 class="hero-title">Frontend<br /><em>System Design</em></h1>
+          <p class="hero-desc">
+            Deep mental models for architecting production-grade frontends —
+            browser internals, performance, caching, security, accessibility,
+            and real system design walkthroughs.
+          </p>
+          <div class="hero-stats">
+            <div>
+              <div class="stat-num">10</div>
+              <div class="stat-lbl">Modules</div>
+            </div>
+            <div>
+              <div class="stat-num">80+</div>
+              <div class="stat-lbl">Concepts</div>
+            </div>
+            <div>
+              <div class="stat-num">50+</div>
+              <div class="stat-lbl">Code Examples</div>
+            </div>
+            <div>
+              <div class="stat-num">6</div>
+              <div class="stat-lbl">System Designs</div>
+            </div>
+          </div>
+        </div>
+        <div class="content">
+          <!-- OVERVIEW -->
+          <section class="section active" id="sec-overview">
+            <div class="section-head">
+              <div class="sec-num">00</div>
+              <div>
+                <div class="sec-title">Course Overview</div>
+                <div class="sec-sub">FRONTEND SYSTEM DESIGN · ALL MODULES</div>
+              </div>
+            </div>
+            <p
+              style="
+                font-size: 1.05rem;
+                color: var(--muted);
+                line-height: 1.9;
+                margin-bottom: 28px;
+                font-style: italic;
+              "
+            >
+              This course teaches you to think like a senior frontend engineer
+              in system design interviews. Each module builds mental models for
+              real-world decisions.
+            </p>
+            <div class="ov-grid">
+              <div class="ov-card" data-n="1" onclick="go('s1')">
+                <div class="ov-num">MODULE 01</div>
+                <div class="ov-name">Browser & Web Internals</div>
+                <div class="ov-desc">
+                  Rendering pipeline · CRP · DOM/CSSOM · Reflow · Compositing ·
+                  Storage · Network
+                </div>
+              </div>
+              <div class="ov-card" data-n="2" onclick="go('s2')">
+                <div class="ov-num">MODULE 02</div>
+                <div class="ov-name">JS Execution Model</div>
+                <div class="ov-desc">
+                  Call stack · Event loop · Microtasks · rAF · Long tasks · Main
+                  thread blocking
+                </div>
+              </div>
+              <div class="ov-card" data-n="3" onclick="go('s3')">
+                <div class="ov-num">MODULE 03</div>
+                <div class="ov-name">Component Architecture</div>
+                <div class="ov-desc">
+                  Responsibility · Container/Presentational · Composition ·
+                  Design systems · Folders
+                </div>
+              </div>
+              <div class="ov-card" data-n="4" onclick="go('s4')">
+                <div class="ov-num">MODULE 04</div>
+                <div class="ov-name">State Management</div>
+                <div class="ov-desc">
+                  State types · Colocation · Context · Redux · Server state ·
+                  React Query · Normalization
+                </div>
+              </div>
+              <div class="ov-card" data-n="5" onclick="go('s5')">
+                <div class="ov-num">MODULE 05</div>
+                <div class="ov-name">Data Fetching & UX</div>
+                <div class="ov-desc">
+                  REST vs GraphQL · Pagination · Infinite scroll · Debounce ·
+                  Optimistic UI · Skeletons
+                </div>
+              </div>
+              <div class="ov-card" data-n="6" onclick="go('s6')">
+                <div class="ov-num">MODULE 06</div>
+                <div class="ov-name">Performance</div>
+                <div class="ov-desc">
+                  Code splitting · Lazy loading · Memoization · Virtual lists ·
+                  Web Workers · Metrics
+                </div>
+              </div>
+              <div class="ov-card" data-n="7" onclick="go('s7')">
+                <div class="ov-num">MODULE 07</div>
+                <div class="ov-name">Caching & Offline</div>
+                <div class="ov-desc">
+                  Browser cache · HTTP headers · CDN · SWR · Prefetch · Service
+                  Workers · Offline-first
+                </div>
+              </div>
+              <div class="ov-card" data-n="8" onclick="go('s8')">
+                <div class="ov-num">MODULE 08</div>
+                <div class="ov-name">Security</div>
+                <div class="ov-desc">
+                  XSS · CSRF · Token storage · HTTPS · CSP · Secure contexts
+                </div>
+              </div>
+              <div class="ov-card" data-n="9" onclick="go('s9')">
+                <div class="ov-num">MODULE 09</div>
+                <div class="ov-name">Accessibility</div>
+                <div class="ov-desc">
+                  Semantic HTML · Keyboard nav · Screen readers · ARIA · Color
+                  contrast · Focus
+                </div>
+              </div>
+              <div class="ov-card" data-n="10" onclick="go('s10')">
+                <div class="ov-num">MODULE 10</div>
+                <div class="ov-name">System Design Practice</div>
+                <div class="ov-desc">
+                  Dashboard · Infinite feed · File upload · Notifications · RBAC
+                  · Real-time
+                </div>
+              </div>
+            </div>
+            <div class="bottom-nav">
+              <span></span
+              ><button class="btn primary" onclick="go('s1')">
+                Start Module 1 →
+              </button>
+            </div>
+          </section>
+
+          <!-- MODULE 1: BROWSER -->
+          <section class="section" id="sec-s1">
+            <div class="section-head">
+              <div class="sec-num">01</div>
+              <div>
+                <div class="sec-title">Browser & Web Internals</div>
+                <div class="sec-sub">
+                  RENDERING PIPELINE · DOM · CSSOM · NETWORK · STORAGE
+                </div>
+              </div>
+            </div>
+            <div class="topic-row">
+              <span class="topic">Rendering Pipeline</span
+              ><span class="topic">Critical Rendering Path</span
+              ><span class="topic">DOM & CSSOM</span>
+              <span class="topic g">Reflow vs Repaint</span
+              ><span class="topic g">Compositing</span
+              ><span class="topic r">Layout Thrashing</span>
+              <span class="topic o">Script Loading</span
+              ><span class="topic o">Browser Storage</span
+              ><span class="topic">Network Basics</span>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q1.1</span
+                ><span class="qa-text"
+                  >Walk me through the browser rendering pipeline from HTML
+                  bytes to pixels on screen.</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  The browser transforms bytes into pixels through six
+                  sequential stages — each stage feeds into the next, and
+                  optimizations skip as many stages as possible.
+                </p>
+                <div class="diagram">
+                  <span class="d-box">Bytes</span><span class="d-arrow">→</span
+                  ><span class="d-box">Chars</span><span class="d-arrow">→</span
+                  ><span class="d-box">Tokens</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box g">DOM</span>
+                  <br />
+                  <span class="d-box">CSS Bytes</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box g">CSSOM</span>
+                  <br />
+                  <span class="d-box g">DOM</span><span class="d-arrow">+</span
+                  ><span class="d-box g">CSSOM</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box o">Render Tree</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box r">Layout</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box r">Paint</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box">Composite</span>
+                </div>
+                <h4>Each stage explained:</h4>
+                <ul>
+                  <li>
+                    <strong>Parse HTML → DOM:</strong> Incremental — browser can
+                    show content before full parse completes.
+                  </li>
+                  <li>
+                    <strong>Parse CSS → CSSOM:</strong> Render-blocking. Browser
+                    waits for ALL CSS before building render tree. No partial
+                    CSSOM.
+                  </li>
+                  <li>
+                    <strong>Render Tree:</strong> DOM + CSSOM merged. Only
+                    visible elements — <code>display:none</code> excluded,
+                    <code>visibility:hidden</code> included.
+                  </li>
+                  <li>
+                    <strong>Layout (Reflow):</strong> Calculate exact position
+                    and box model of every visible element.
+                  </li>
+                  <li>
+                    <strong>Paint:</strong> Convert layout to pixels — colors,
+                    borders, shadows, text.
+                  </li>
+                  <li>
+                    <strong>Composite:</strong> GPU blends layers in correct
+                    order. Only this stage truly runs on GPU.
+                  </li>
+                </ul>
+                <div class="callout tip">
+                  <div class="callout-title">💡 Interview insight</div>
+                  <p>
+                    <strong>transform and opacity</strong> only trigger
+                    compositing — skipping layout and paint entirely. That's why
+                    they're the gold standard for smooth animations.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q1.2</span
+                ><span class="qa-text"
+                  >What is the Critical Rendering Path and how do you optimize
+                  it?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  The <strong>Critical Rendering Path (CRP)</strong> is the
+                  sequence of steps the browser must complete before it can
+                  render any content to screen. It involves three critical
+                  resources: HTML, CSS, and render-blocking JavaScript.
+                </p>
+                <h4>What blocks the CRP:</h4>
+                <ul>
+                  <li>
+                    <strong>CSS is render-blocking:</strong> Browser won't paint
+                    until CSSOM is complete.
+                  </li>
+                  <li>
+                    <strong>Sync JS is parser-blocking:</strong> Pauses HTML
+                    parsing entirely.
+                  </li>
+                  <li>
+                    <strong>JS is also render-blocking</strong> if it runs
+                    before CSS is loaded.
+                  </li>
+                </ul>
+                <pre><span class="cm">&lt;!-- BAD: blocks HTML parsing --&gt;</span>
+&lt;script src="app.js"&gt;&lt;/script&gt;
+
+<span class="cm">&lt;!-- GOOD: async — runs ASAP, doesn't block parse, no order guarantee --&gt;</span>
+&lt;script src="analytics.js" <span class="kw">async</span>&gt;&lt;/script&gt;
+
+<span class="cm">&lt;!-- GOOD: defer — runs after parse, maintains order --&gt;</span>
+&lt;script src="app.js" <span class="kw">defer</span>&gt;&lt;/script&gt;
+
+<span class="cm">&lt;!-- Preload critical assets --&gt;</span>
+&lt;link rel="preload" href="hero.webp" as="image" fetchpriority="high"&gt;
+&lt;link rel="preload" href="font.woff2" as="font" crossorigin&gt;</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q1.3</span
+                ><span class="qa-text"
+                  >What's the difference between reflow and repaint? How do you
+                  avoid layout thrashing?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  <strong>Reflow (Layout)</strong> recalculates geometry of
+                  affected elements and descendants — expensive, can cascade.
+                  <strong>Repaint</strong> redraws pixels without layout changes
+                  — cheaper but still blocks main thread.
+                </p>
+                <table>
+                  <tr>
+                    <th>CSS Change</th>
+                    <th>Reflow?</th>
+                    <th>Repaint?</th>
+                    <th>Composite only?</th>
+                  </tr>
+                  <tr>
+                    <td>width / height / margin</td>
+                    <td><em>Yes</em></td>
+                    <td><em>Yes</em></td>
+                    <td>No</td>
+                  </tr>
+                  <tr>
+                    <td>color / background-color</td>
+                    <td>No</td>
+                    <td><em>Yes</em></td>
+                    <td>No</td>
+                  </tr>
+                  <tr>
+                    <td>transform / opacity</td>
+                    <td>No</td>
+                    <td>No</td>
+                    <td><em>Yes ✓</em></td>
+                  </tr>
+                  <tr>
+                    <td>box-shadow</td>
+                    <td>No</td>
+                    <td><em>Yes</em></td>
+                    <td>No</td>
+                  </tr>
+                  <tr>
+                    <td>Adding DOM nodes</td>
+                    <td><em>Yes</em></td>
+                    <td><em>Yes</em></td>
+                    <td>No</td>
+                  </tr>
+                </table>
+                <div class="callout danger">
+                  <div class="callout-title">⚠ Layout Thrashing</div>
+                  <p>
+                    Reading layout properties (offsetWidth,
+                    getBoundingClientRect) after writing DOM forces synchronous
+                    layout. Batch ALL reads first, then ALL writes.
+                  </p>
+                </div>
+                <pre><span class="cm">// BAD: read then write in loop forces layout each iteration</span>
+elements.<span class="fn">forEach</span>(el => {
+  <span class="kw">const</span> h = el.offsetHeight;   <span class="cm">// forces layout</span>
+  el.style.height = h * <span class="num">2</span> + <span class="str">'px'</span>; <span class="cm">// invalidates layout</span>
+});
+
+<span class="cm">// GOOD: batch reads, then writes</span>
+<span class="kw">const</span> heights = elements.<span class="fn">map</span>(el => el.offsetHeight); <span class="cm">// all reads</span>
+elements.<span class="fn">forEach</span>((el, i) => el.style.height = heights[i] * <span class="num">2</span> + <span class="str">'px'</span>);</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q1.4</span
+                ><span class="qa-text"
+                  >How does GPU compositing work? How do you promote elements to
+                  compositor layers?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  The browser splits the page into layers and sends them to the
+                  GPU for compositing. The GPU is optimized for image blending —
+                  compositing is nearly free compared to layout or paint.
+                </p>
+                <h4>Browser creates a compositor layer when element has:</h4>
+                <ul>
+                  <li>
+                    <code>will-change: transform</code> or
+                    <code>transform: translateZ(0)</code>
+                  </li>
+                  <li>Active CSS animation on transform/opacity</li>
+                  <li>
+                    <code>position: fixed</code>, <code>overflow: scroll</code>
+                  </li>
+                  <li>Canvas, WebGL, video elements</li>
+                </ul>
+                <pre><span class="cm">/* Promote element to its own compositor layer */</span>
+.<span class="cls">animated</span> { <span class="prop">will-change</span>: transform; }
+
+<span class="cm">/* GPU-only animation — no layout, no paint */</span>
+.<span class="cls">slide-in</span> { animation: slideIn 300ms ease; }
+@keyframes slideIn {
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}</pre>
+                <div class="callout warn">
+                  <div class="callout-title">⚠ Layer explosion</div>
+                  <p>
+                    Too many compositor layers consumes GPU memory. Use
+                    <code>will-change</code> surgically — only on elements you
+                    know will animate.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q1.5</span
+                ><span class="qa-text"
+                  >Compare browser storage options: cookies, localStorage,
+                  sessionStorage, IndexedDB.</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <table>
+                  <tr>
+                    <th>Storage</th>
+                    <th>Size</th>
+                    <th>Persists?</th>
+                    <th>Sent with requests?</th>
+                    <th>Best for</th>
+                  </tr>
+                  <tr>
+                    <td><strong>Cookie</strong></td>
+                    <td>4 KB</td>
+                    <td>Configurable (expires)</td>
+                    <td><em>Yes (auto)</em></td>
+                    <td>Auth tokens, session IDs</td>
+                  </tr>
+                  <tr>
+                    <td><strong>localStorage</strong></td>
+                    <td>5–10 MB</td>
+                    <td>Until cleared</td>
+                    <td>No</td>
+                    <td>User preferences, app state</td>
+                  </tr>
+                  <tr>
+                    <td><strong>sessionStorage</strong></td>
+                    <td>5–10 MB</td>
+                    <td>Tab lifetime</td>
+                    <td>No</td>
+                    <td>Tab-specific wizard state</td>
+                  </tr>
+                  <tr>
+                    <td><strong>IndexedDB</strong></td>
+                    <td>Hundreds MB</td>
+                    <td>Until cleared</td>
+                    <td>No</td>
+                    <td>Large datasets, offline cache</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Cache API</strong></td>
+                    <td>Varies</td>
+                    <td>Until evicted</td>
+                    <td>No</td>
+                    <td>Service Worker asset caching</td>
+                  </tr>
+                </table>
+                <div class="callout danger">
+                  <div class="callout-title">🔐 Security note</div>
+                  <p>
+                    Never store JWT tokens in localStorage — XSS can steal them.
+                    Use <strong>httpOnly cookies</strong> for auth tokens. They
+                    cannot be read by JavaScript at all.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bottom-nav">
+              <button class="btn" onclick="go('overview')">← Overview</button>
+              <button class="btn primary" onclick="go('s2')">
+                JS Execution Model →
+              </button>
+            </div>
+          </section>
+
+          <!-- MODULE 2: JS EXECUTION -->
+          <section class="section" id="sec-s2">
+            <div class="section-head">
+              <div class="sec-num">02</div>
+              <div>
+                <div class="sec-title">JavaScript Execution Model</div>
+                <div class="sec-sub">
+                  CALL STACK · EVENT LOOP · MICROTASKS · rAF · LONG TASKS
+                </div>
+              </div>
+            </div>
+            <div class="topic-row">
+              <span class="topic">Call Stack</span
+              ><span class="topic">Event Loop</span
+              ><span class="topic g">Microtasks vs Macrotasks</span>
+              <span class="topic g">Promise Timing</span
+              ><span class="topic r">Long Tasks</span
+              ><span class="topic o">requestAnimationFrame</span
+              ><span class="topic o">Timers</span>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q2.1</span
+                ><span class="qa-text"
+                  >Explain the JavaScript Event Loop. What is the execution
+                  order of microtasks vs macrotasks?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  JavaScript is single-threaded. The event loop allows
+                  non-blocking operations despite this constraint by
+                  coordinating the call stack, microtask queue, and macrotask
+                  queue.
+                </p>
+                <div class="diagram">
+                  <span class="d-box">Call Stack</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box o">Web APIs</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box r">Macro Queue</span><br />
+                  <span
+                    style="
+                      color: var(--muted);
+                      font-size: 0.64rem;
+                      display: block;
+                      margin-top: 8px;
+                    "
+                    >Event Loop tick:</span
+                  >
+                  <span class="d-box g">1. Run stack to empty</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box g">2. Drain ALL microtasks</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box o">3. One macro task</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box">4. Render</span>
+                </div>
+                <h4>Microtask queue — drained completely between tasks:</h4>
+                <ul>
+                  <li>
+                    Promise <code>.then()</code> / <code>.catch()</code> /
+                    <code>.finally()</code>
+                  </li>
+                  <li>
+                    <code>queueMicrotask()</code>,
+                    <code>MutationObserver</code>,
+                    <code>async/await</code> continuations
+                  </li>
+                </ul>
+                <h4>Macrotask queue — one per event loop tick:</h4>
+                <ul>
+                  <li>
+                    <code>setTimeout</code>, <code>setInterval</code>, I/O
+                    callbacks, UI events (click, keydown)
+                  </li>
+                </ul>
+                <pre><span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'1'</span>);                                 <span class="cm">// sync</span>
+<span class="fn">setTimeout</span>(() => <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'2'</span>), <span class="num">0</span>);           <span class="cm">// macrotask</span>
+Promise.<span class="fn">resolve</span>().<span class="fn">then</span>(() => <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'3'</span>)); <span class="cm">// microtask</span>
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="str">'4'</span>);                                 <span class="cm">// sync</span>
+<span class="cm">// Output: 1, 4, 3, 2</span></pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q2.2</span
+                ><span class="qa-text"
+                  >What are long tasks and how do they break INP? How do you
+                  break them up?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  A <strong>long task</strong> is any JavaScript task on the
+                  main thread exceeding 50ms. During it, the browser cannot
+                  respond to input, run animations, or paint — directly harming
+                  INP (Interaction to Next Paint).
+                </p>
+                <pre><span class="cm">// Detect long tasks</span>
+<span class="kw">const</span> observer = <span class="kw">new</span> <span class="fn">PerformanceObserver</span>(list => {
+  list.<span class="fn">getEntries</span>().<span class="fn">forEach</span>(e => <span class="fn">console</span>.<span class="fn">warn</span>(<span class="str">`Long task: ${e.duration}ms`</span>));
+});
+observer.<span class="fn">observe</span>({ entryTypes: [<span class="str">'longtask'</span>] });
+
+<span class="cm">// Break long task into chunks — yield to browser between</span>
+<span class="kw">async function</span> <span class="fn">processLargeArray</span>(items) {
+  <span class="kw">const</span> CHUNK = <span class="num">100</span>;
+  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; items.length; i += CHUNK) {
+    items.<span class="fn">slice</span>(i, i + CHUNK).<span class="fn">forEach</span>(processItem);
+    <span class="kw">await</span> scheduler.<span class="fn">yield</span>(); <span class="cm">// yield to browser — lets it paint/handle input</span>
+  }
+}</pre>
+                <div class="callout info">
+                  <div class="callout-title">📊 Metrics</div>
+                  <p>
+                    Good INP is under 200ms. Total Blocking Time (TBT) in lab
+                    tools = sum of ms over 50ms threshold for all long tasks
+                    during load.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q2.3</span
+                ><span class="qa-text"
+                  >When do you use requestAnimationFrame vs setTimeout for
+                  animations?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  <code>requestAnimationFrame</code> (rAF) schedules a callback
+                  just before the browser paints the next frame — synchronized
+                  with the display refresh rate (~60fps / 16.67ms). This makes
+                  it the correct hook for visual updates.
+                </p>
+                <ul>
+                  <li>
+                    Synchronized with display — no tearing or drift from timer
+                    imprecision
+                  </li>
+                  <li>
+                    Automatically paused when tab is not visible — no wasted
+                    computation
+                  </li>
+                  <li>
+                    Fires after all microtasks, just before paint — DOM
+                    mutations here appear in the current frame
+                  </li>
+                </ul>
+                <pre><span class="cm">// BAD: setTimeout may fire mid-frame</span>
+<span class="kw">let</span> pos = <span class="num">0</span>;
+<span class="fn">setInterval</span>(() => el.style.left = (pos++) + <span class="str">'px'</span>, <span class="num">16</span>);
+
+<span class="cm">// GOOD: rAF always synced to next paint frame</span>
+<span class="kw">let</span> pos = <span class="num">0</span>;
+<span class="kw">function</span> <span class="fn">animate</span>() {
+  el.style.left = (pos++) + <span class="str">'px'</span>;
+  <span class="fn">requestAnimationFrame</span>(animate);
+}
+<span class="fn">requestAnimationFrame</span>(animate);</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q2.4</span
+                ><span class="qa-text"
+                  >When does a resolved Promise run relative to setTimeout? Why
+                  does this matter for rendering?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  A resolved Promise <strong>always runs before</strong>
+                  <code>setTimeout(fn, 0)</code>. Promises go into the microtask
+                  queue, which is fully drained before any macrotask (including
+                  timers) runs.
+                </p>
+                <p>
+                  This matters for rendering:
+                  <strong>microtasks can delay paint</strong>. If you chain too
+                  many Promises or use recursive microtasks, the browser never
+                  gets a chance to render a frame.
+                </p>
+                <pre><span class="cm">// This recursive microtask starves the render loop — never paints!</span>
+<span class="kw">function</span> <span class="fn">starve</span>() { Promise.<span class="fn">resolve</span>().<span class="fn">then</span>(starve); }
+<span class="fn">starve</span>(); <span class="cm">// ⚠ page freezes</span>
+
+<span class="cm">// Microtasks inside rAF run before paint — DOM changes are visible this frame</span>
+<span class="fn">requestAnimationFrame</span>(() => {
+  Promise.<span class="fn">resolve</span>().<span class="fn">then</span>(() => {
+    el.style.color = <span class="str">'red'</span>; <span class="cm">// visible in this frame</span>
+  });
+});</pre>
+              </div>
+            </div>
+
+            <div class="bottom-nav">
+              <button class="btn" onclick="go('s1')">
+                ← Browser Internals
+              </button>
+              <button class="btn primary" onclick="go('s3')">
+                Component Architecture →
+              </button>
+            </div>
+          </section>
+
+          <!-- MODULE 3: COMPONENT ARCHITECTURE -->
+          <section class="section" id="sec-s3">
+            <div class="section-head">
+              <div class="sec-num">03</div>
+              <div>
+                <div class="sec-title">Component & UI Architecture</div>
+                <div class="sec-sub">
+                  RESPONSIBILITY · PATTERNS · DESIGN SYSTEMS · STRUCTURE
+                </div>
+              </div>
+            </div>
+            <div class="topic-row">
+              <span class="topic">Component Responsibility</span
+              ><span class="topic">Container vs Presentational</span>
+              <span class="topic g">Composition Patterns</span
+              ><span class="topic g">Reusability</span>
+              <span class="topic o">Feature Folder Structure</span
+              ><span class="topic o">Design Systems</span
+              ><span class="topic r">Over-engineering</span>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q3.1</span
+                ><span class="qa-text"
+                  >What is the Container vs Presentational pattern and when is
+                  it still useful?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  This pattern separates
+                  <strong>what data to show</strong> (container/smart) from
+                  <strong>how to show it</strong> (presentational/dumb).
+                  Presentational components receive all data as props and have
+                  no side effects — they're pure render functions.
+                </p>
+                <pre><span class="cm">// Presentational — pure, stateless, highly testable</span>
+<span class="kw">function</span> <span class="fn">UserCard</span>({ name, avatar, role, onFollow }) {
+  <span class="kw">return</span> (
+    &lt;div className="card"&gt;
+      &lt;img src={avatar} alt={name} /&gt;
+      &lt;h2&gt;{name}&lt;/h2&gt;&lt;p&gt;{role}&lt;/p&gt;
+      &lt;button onClick={onFollow}&gt;Follow&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+<span class="cm">// Container — fetches data, owns logic</span>
+<span class="kw">function</span> <span class="fn">UserCardContainer</span>({ userId }) {
+  <span class="kw">const</span> { user } = <span class="fn">useUser</span>(userId);
+  <span class="kw">const</span> { follow } = <span class="fn">useFollowUser</span>();
+  <span class="kw">return</span> &lt;UserCard {...user} onFollow={() => <span class="fn">follow</span>(userId)} /&gt;;
+}</pre>
+                <div class="callout info">
+                  <div class="callout-title">📖 Modern note</div>
+                  <p>
+                    With hooks, the file boundary is less strict — logic lives
+                    in custom hooks while the component stays mostly
+                    presentational. The separation still matters conceptually.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q3.2</span
+                ><span class="qa-text"
+                  >Explain composition patterns: compound components, render
+                  props, slots.</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <h4>
+                  Compound Components — shared implicit state via Context:
+                </h4>
+                <pre><span class="cm">// Tabs share active state internally — consumer controls layout</span>
+&lt;Tabs defaultValue="a"&gt;
+  &lt;Tabs.List&gt;
+    &lt;Tabs.Trigger value="a"&gt;Tab A&lt;/Tabs.Trigger&gt;
+    &lt;Tabs.Trigger value="b"&gt;Tab B&lt;/Tabs.Trigger&gt;
+  &lt;/Tabs.List&gt;
+  &lt;Tabs.Content value="a"&gt;Content A&lt;/Tabs.Content&gt;
+&lt;/Tabs&gt;</pre>
+                <h4>
+                  Render Props — caller controls rendering with access to
+                  internal state:
+                </h4>
+                <pre>
+&lt;DataProvider
+  render={({ data, loading }) =>
+    loading ? &lt;Spinner /&gt; : &lt;List items={data} /&gt;
+  }
+/&gt;</pre
+                >
+                <h4>When to use each:</h4>
+                <ul>
+                  <li>
+                    <strong>Compound components:</strong> UI with multiple
+                    related parts (Select, Menu, Dialog, Tabs, Accordion)
+                  </li>
+                  <li>
+                    <strong>Render props:</strong> When consumer needs access to
+                    internal state across different UI layouts
+                  </li>
+                  <li>
+                    <strong>Custom hooks (modern first choice):</strong> When
+                    logic needs sharing; let consumer own rendering
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q3.3</span
+                ><span class="qa-text"
+                  >What's the best folder structure for a large React app?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  Feature-based (co-location) structure scales better than
+                  type-based. Co-locate everything related to a feature —
+                  components, hooks, API calls, state — next to each other.
+                </p>
+                <pre><span class="cm">src/
+├── features/              # Domain features</span>
+<span class="cm">│   ├── auth/
+│   │   ├── components/    # LoginForm, SignupPage
+│   │   ├── hooks/         # useAuth, useSession
+│   │   ├── store/         # authSlice.ts
+│   │   ├── api/           # authApi.ts
+│   │   └── index.ts       # public API — what other features can import
+│   └── dashboard/
+├── components/            # Truly shared, domain-agnostic UI</span>
+<span class="cm">│   ├── Button/, Modal/, Spinner/
+├── hooks/                 # Global hooks (useDebounce, useMediaQuery)
+├── lib/                   # 3rd party wrappers (axios instance, queryClient)
+├── store/                 # Redux store config (if using Redux)
+├── types/                 # Shared TypeScript types
+└── utils/                 # Pure functions</span></pre>
+                <div class="callout tip">
+                  <div class="callout-title">💡 Barrel file rule</div>
+                  <p>
+                    Each feature exports only what other features need via
+                    <code>index.ts</code>. Features can't reach into each
+                    other's internals — enforces encapsulation.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q3.4</span
+                ><span class="qa-text"
+                  >How do you design a truly reusable design system
+                  component?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  The key insight:
+                  <em>over-abstraction is as harmful as duplication</em>.
+                  Reusable components must be flexible without becoming
+                  infinitely configurable.
+                </p>
+                <h4>Principles:</h4>
+                <ul>
+                  <li>
+                    <strong>Spread remaining props:</strong> Accept
+                    <code>className</code>, <code>data-*</code>, event handlers
+                    — don't lock down the DOM
+                  </li>
+                  <li>
+                    <strong>Forward refs:</strong> Allow consumers to access the
+                    underlying DOM node
+                  </li>
+                  <li>
+                    <strong>Polymorphic <code>as</code> prop:</strong> Render as
+                    button, anchor, or any element while keeping styles
+                  </li>
+                  <li>
+                    <strong>Composition over configuration:</strong> Small
+                    composable pieces beat one mega-configurable monolith
+                  </li>
+                </ul>
+                <pre><span class="cm">// Polymorphic Button — renders as button or anchor or any element</span>
+<span class="kw">const</span> Button = <span class="fn">forwardRef</span>(({ as: Tag = <span class="str">'button'</span>, variant = <span class="str">'primary'</span>, className, ...props }, ref) => (
+  &lt;Tag
+    ref={ref}
+    className={`btn btn--${variant} ${className}`}
+    {...props}
+  /&gt;
+));
+
+<span class="cm">// Usage</span>
+&lt;Button as="a" href="/signup"&gt;Sign up&lt;/Button&gt;
+&lt;Button onClick={handleSubmit} variant="ghost"&gt;Cancel&lt;/Button&gt;</pre>
+              </div>
+            </div>
+
+            <div class="bottom-nav">
+              <button class="btn" onclick="go('s2')">← JS Execution</button>
+              <button class="btn primary" onclick="go('s4')">
+                State Management →
+              </button>
+            </div>
+          </section>
+          <!-- MODULE 4: STATE MANAGEMENT -->
+          <section class="section" id="sec-s4">
+            <div class="section-head">
+              <div class="sec-num">04</div>
+              <div>
+                <div class="sec-title">State Management</div>
+                <div class="sec-sub">
+                  TYPES · COLOCATION · CONTEXT · REDUX · SERVER STATE
+                </div>
+              </div>
+            </div>
+            <div class="topic-row">
+              <span class="topic">Types of State</span
+              ><span class="topic">Colocation</span
+              ><span class="topic">Lifting State Up</span>
+              <span class="topic g">Context API</span
+              ><span class="topic g">Redux & RTK</span
+              ><span class="topic r">Server State</span
+              ><span class="topic r">React Query</span
+              ><span class="topic o">Data Normalization</span>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q4.1</span
+                ><span class="qa-text"
+                  >What are the different types of state and where should each
+                  live?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <table>
+                  <tr>
+                    <th>State Type</th>
+                    <th>Examples</th>
+                    <th>Where to store</th>
+                  </tr>
+                  <tr>
+                    <td><strong>Local UI state</strong></td>
+                    <td>Modal open, dropdown, form input</td>
+                    <td><em>useState in component</em></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Shared UI state</strong></td>
+                    <td>Active tab, sort order, filters</td>
+                    <td><em>Lifted state or URL params</em></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Global UI state</strong></td>
+                    <td>Theme, sidebar, toast queue</td>
+                    <td><em>Context or Zustand</em></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Server state</strong></td>
+                    <td>User data, posts (async)</td>
+                    <td><em>React Query / SWR</em></td>
+                  </tr>
+                  <tr>
+                    <td><strong>URL state</strong></td>
+                    <td>Search, pagination, active tab</td>
+                    <td><em>URL search params</em></td>
+                  </tr>
+                </table>
+                <div class="callout tip">
+                  <div class="callout-title">
+                    💡 URL state is often overlooked
+                  </div>
+                  <p>
+                    Filters, pagination, and search queries should live in the
+                    URL — makes pages shareable, bookmarkable, eliminates
+                    unnecessary global state.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q4.2</span
+                ><span class="qa-text"
+                  >What is state colocation and why does it matter for
+                  performance?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  Put state as close as possible to the component using it.
+                  State living unnecessarily high causes all descendants to
+                  re-render on every change.
+                </p>
+                <pre><span class="cm">// BAD: count at App level — full tree re-renders</span>
+<span class="kw">function</span> <span class="fn">App</span>() {
+  <span class="kw">const</span> [count, setCount] = <span class="fn">useState</span>(<span class="num">0</span>);
+  <span class="kw">return</span> (&lt;&gt;&lt;HeavySidebar /&gt;<span class="cm">/* re-renders! */</span>&lt;Counter count={count} /&gt;&lt;/&gt;);
+}
+<span class="cm">// GOOD: Counter manages its own state</span>
+<span class="kw">function</span> <span class="fn">Counter</span>() {
+  <span class="kw">const</span> [count, setCount] = <span class="fn">useState</span>(<span class="num">0</span>);
+  <span class="kw">return</span> &lt;button onClick={() => <span class="fn">setCount</span>(c => c + <span class="num">1</span>)}&gt;{count}&lt;/button&gt;;
+}</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q4.3</span
+                ><span class="qa-text"
+                  >What's the Context API performance pitfall and how do you fix
+                  it?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  Every consumer re-renders when any value in the context
+                  changes — even if it only uses one field.
+                </p>
+                <pre><span class="cm">// BAD: one giant context — all consumers re-render on ANY change</span>
+<span class="kw">const</span> AppCtx = <span class="fn">createContext</span>({ user, theme, cart });
+<span class="cm">// GOOD: split contexts + memoize value</span>
+<span class="kw">const</span> UserCtx = <span class="fn">createContext</span>(user);
+<span class="kw">function</span> <span class="fn">UserProvider</span>({ children }) {
+  <span class="kw">const</span> [user, setUser] = <span class="fn">useState</span>(<span class="kw">null</span>);
+  <span class="kw">const</span> value = <span class="fn">useMemo</span>(() => ({ user, setUser }), [user]);
+  <span class="kw">return</span> &lt;UserCtx.Provider value={value}&gt;{children}&lt;/UserCtx.Provider&gt;;
+}</pre>
+                <div class="callout info">
+                  <div class="callout-title">
+                    📌 Context bad for high-frequency updates
+                  </div>
+                  <p>
+                    Don't put mouse position, scroll, or real-time data in
+                    Context. Use Zustand/Jotai — they support granular
+                    subscriptions at the atom level.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q4.4</span
+                ><span class="qa-text"
+                  >Explain the Redux mental model and when do you actually need
+                  it?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  Redux enforces strict unidirectional flow: dispatch action →
+                  reducer produces new state → store notifies. Entire app state
+                  is one immutable tree.
+                </p>
+                <div class="diagram">
+                  <span class="d-box">UI Event</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box o">Action</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box r">Reducer</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box g">New State</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box">Re-render</span>
+                </div>
+                <pre><span class="cm">// Redux Toolkit slice — Immer handles immutability</span>
+<span class="kw">const</span> cartSlice = <span class="fn">createSlice</span>({
+  name: <span class="str">'cart'</span>, initialState: { items: [] },
+  reducers: { <span class="fn">addItem</span>(state, { payload }) { state.items.<span class="fn">push</span>(payload); } }
+});</pre>
+                <p>
+                  Use Redux when: complex state machines + DevTools +
+                  middleware. Not needed for most apps — React Query + Context
+                  covers 90% of needs.
+                </p>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q4.5</span
+                ><span class="qa-text"
+                  >What is server state and why does React Query manage it
+                  differently?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  Server state is async, remote, potentially stale, shared
+                  across components. React Query treats it as a
+                  <strong>cache</strong> with automatic loading, error,
+                  background refetch, deduplication, and invalidation.
+                </p>
+                <pre><span class="cm">// React Query — server state handled automatically</span>
+<span class="kw">function</span> <span class="fn">UserProfile</span>({ userId }) {
+  <span class="kw">const</span> { data, isLoading, error } = <span class="fn">useQuery</span>({
+    queryKey: [<span class="str">'user'</span>, userId],
+    queryFn: () => <span class="fn">fetchUser</span>(userId),
+    staleTime: <span class="num">5</span> * <span class="num">60</span> * <span class="num">1000</span>, <span class="cm">// serve from cache for 5 min</span>
+  });
+  <span class="kw">if</span> (isLoading) <span class="kw">return</span> &lt;Skeleton /&gt;;
+  <span class="kw">if</span> (error) <span class="kw">return</span> &lt;Error /&gt;;
+  <span class="kw">return</span> &lt;Profile user={data} /&gt;;
+}
+<span class="cm">// After mutation — invalidate to refetch</span>
+queryClient.<span class="fn">invalidateQueries</span>([<span class="str">'user'</span>, userId]);</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q4.6</span
+                ><span class="qa-text"
+                  >What is data normalization and when do you need it on the
+                  frontend?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  Normalization stores entities in a flat dictionary by ID, with
+                  relationships as ID references. Prevents inconsistency when
+                  the same entity appears in multiple places.
+                </p>
+                <pre><span class="cm">// Unnormalized — user duplicated across posts</span>
+<span class="kw">const</span> posts = [
+  { id: <span class="num">1</span>, author: { id: <span class="num">42</span>, name: <span class="str">'Alice'</span> } },
+  { id: <span class="num">2</span>, author: { id: <span class="num">42</span>, name: <span class="str">'Alice'</span> } }
+  <span class="cm">// Update Alice's name? Must update in 2 places</span>
+];
+<span class="cm">// Normalized — single source of truth</span>
+<span class="kw">const</span> state = {
+  users: { <span class="num">42</span>: { id: <span class="num">42</span>, name: <span class="str">'Alice'</span> } },
+  posts: { <span class="num">1</span>: { id: <span class="num">1</span>, authorId: <span class="num">42</span> }, <span class="num">2</span>: { id: <span class="num">2</span>, authorId: <span class="num">42</span> } }
+};</pre>
+                <p>
+                  RTK's <code>createEntityAdapter</code> provides normalized
+                  CRUD patterns. For React Query apps, normalization is less
+                  critical since data is re-fetched fresh from server.
+                </p>
+              </div>
+            </div>
+
+            <div class="bottom-nav">
+              <button class="btn" onclick="go('s3')">
+                ← Component Architecture
+              </button>
+              <button class="btn primary" onclick="go('s5')">
+                Data Fetching →
+              </button>
+            </div>
+          </section>
+
+          <!-- MODULE 5: DATA FETCHING -->
+          <section class="section" id="sec-s5">
+            <div class="section-head">
+              <div class="sec-num">05</div>
+              <div>
+                <div class="sec-title">Data Fetching & UX Patterns</div>
+                <div class="sec-sub">
+                  REST · GRAPHQL · PAGINATION · OPTIMISTIC UI · SKELETONS
+                </div>
+              </div>
+            </div>
+            <div class="topic-row">
+              <span class="topic">REST vs GraphQL</span
+              ><span class="topic">Pagination</span
+              ><span class="topic">Infinite Scroll</span>
+              <span class="topic g">Search & Autocomplete</span
+              ><span class="topic g">Debounce & Throttle</span
+              ><span class="topic r">Optimistic UI</span>
+              <span class="topic o">Skeletons</span
+              ><span class="topic o">Error Handling</span>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q5.1</span
+                ><span class="qa-text"
+                  >REST vs GraphQL — when do you choose each for a frontend
+                  system?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <table>
+                  <tr>
+                    <th>Dimension</th>
+                    <th>REST</th>
+                    <th>GraphQL</th>
+                  </tr>
+                  <tr>
+                    <td>Overfetching</td>
+                    <td><em>Common</em> — gets full resource</td>
+                    <td>Client specifies exact fields</td>
+                  </tr>
+                  <tr>
+                    <td>Underfetching</td>
+                    <td><em>Common</em> — multiple round-trips</td>
+                    <td>One query, all related data</td>
+                  </tr>
+                  <tr>
+                    <td>HTTP Caching</td>
+                    <td>Works naturally (GET + ETag)</td>
+                    <td>Needs client cache (Apollo/urql)</td>
+                  </tr>
+                  <tr>
+                    <td>Type safety</td>
+                    <td>Manual schemas (OpenAPI)</td>
+                    <td><em>Built-in schema + codegen</em></td>
+                  </tr>
+                  <tr>
+                    <td>Real-time</td>
+                    <td>Manual SSE/WebSocket</td>
+                    <td>Subscriptions built-in</td>
+                  </tr>
+                  <tr>
+                    <td>Team overhead</td>
+                    <td>Low — familiar</td>
+                    <td>Schema management discipline needed</td>
+                  </tr>
+                </table>
+                <div class="callout tip">
+                  <div class="callout-title">💡 Choose GraphQL when</div>
+                  <p>
+                    Multiple clients (mobile, web, TV) with different data
+                    shapes hit the same API, or you have deeply relational data.
+                    REST is fine for resource-based APIs with simple
+                    relationships.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q5.2</span
+                ><span class="qa-text"
+                  >Cursor vs offset pagination — when do you use each?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  <strong>Offset pagination</strong> uses
+                  <code>page + limit</code>. Simple to implement but breaks if
+                  items are inserted/deleted mid-session — items can be skipped
+                  or duplicated.
+                </p>
+                <p>
+                  <strong>Cursor-based pagination</strong> uses an opaque
+                  pointer to a position. Stable even as data changes — the
+                  standard for social feeds, timelines, and any dynamic dataset.
+                </p>
+                <pre><span class="cm">// Offset — simple but unstable for dynamic data</span>
+GET /posts?page=2&amp;limit=20
+
+<span class="cm">// Cursor — stable: next page always continues from exact position</span>
+GET /posts?cursor=eyJpZCI6MTAwfQ&amp;limit=20
+<span class="cm">// Response: { data: [...], nextCursor: "eyJpZCI6MTIwfQ", hasMore: true }</span>
+
+<span class="cm">// React Query infinite query with cursor</span>
+<span class="kw">const</span> { data, fetchNextPage, hasNextPage } = <span class="fn">useInfiniteQuery</span>({
+  queryKey: [<span class="str">'posts'</span>],
+  queryFn: ({ pageParam }) => <span class="fn">fetchPosts</span>({ cursor: pageParam }),
+  getNextPageParam: (lastPage) => lastPage.nextCursor,
+});</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q5.3</span
+                ><span class="qa-text"
+                  >Debouncing vs throttling — implementations and use
+                  cases.</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  <strong>Debouncing</strong> delays execution until a pause in
+                  events — fires N ms after the last trigger.
+                  <strong>Throttling</strong> limits execution to at most once
+                  per N ms — fires at a consistent rate.
+                </p>
+                <table>
+                  <tr>
+                    <th>Pattern</th>
+                    <th>Behavior</th>
+                    <th>Use case</th>
+                  </tr>
+                  <tr>
+                    <td><strong>Debounce</strong></td>
+                    <td>Fire after N ms of silence</td>
+                    <td>Search autocomplete, resize handler</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Throttle</strong></td>
+                    <td>Fire at most once per N ms</td>
+                    <td>Scroll events, mouse move, rate limiting</td>
+                  </tr>
+                </table>
+                <pre><span class="cm">// Debounce hook — delays API call until user pauses typing</span>
+<span class="kw">function</span> <span class="fn">useDebounce</span>(value, delay = <span class="num">300</span>) {
+  <span class="kw">const</span> [debounced, setDebounced] = <span class="fn">useState</span>(value);
+  <span class="fn">useEffect</span>(() => {
+    <span class="kw">const</span> timer = <span class="fn">setTimeout</span>(() => <span class="fn">setDebounced</span>(value), delay);
+    <span class="kw">return</span> () => <span class="fn">clearTimeout</span>(timer); <span class="cm">// cleanup cancels timer on next change</span>
+  }, [value, delay]);
+  <span class="kw">return</span> debounced;
+}
+<span class="cm">// API call only fires when user pauses typing for 300ms</span>
+<span class="kw">const</span> query = <span class="fn">useDebounce</span>(searchInput, <span class="num">300</span>);</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q5.4</span
+                ><span class="qa-text"
+                  >What is optimistic UI and how do you implement it with safe
+                  rollback?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  Optimistic UI updates the interface immediately as if the API
+                  call succeeded, then reconciles with the real response. Makes
+                  apps feel instant — crucial for likes, follows, reorder
+                  drag-and-drop.
+                </p>
+                <pre><span class="cm">// React Query optimistic mutation with rollback</span>
+<span class="kw">const</span> mutation = <span class="fn">useMutation</span>({
+  mutationFn: (postId) => <span class="fn">likePost</span>(postId),
+  <span class="fn">onMutate</span>: <span class="kw">async</span> (postId) => {
+    <span class="kw">await</span> queryClient.<span class="fn">cancelQueries</span>([<span class="str">'post'</span>, postId]); <span class="cm">// stop racing refetch</span>
+    <span class="kw">const</span> prev = queryClient.<span class="fn">getQueryData</span>([<span class="str">'post'</span>, postId]); <span class="cm">// snapshot</span>
+    queryClient.<span class="fn">setQueryData</span>([<span class="str">'post'</span>, postId], old => ({ ...old, likes: old.likes + <span class="num">1</span> }));
+    <span class="kw">return</span> { prev }; <span class="cm">// pass snapshot to onError</span>
+  },
+  <span class="fn">onError</span>: (err, postId, ctx) => {
+    queryClient.<span class="fn">setQueryData</span>([<span class="str">'post'</span>, postId], ctx.prev); <span class="cm">// rollback</span>
+  },
+  <span class="fn">onSettled</span>: (_, __, postId) => {
+    queryClient.<span class="fn">invalidateQueries</span>([<span class="str">'post'</span>, postId]); <span class="cm">// sync with server</span>
+  },
+});</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q5.5</span
+                ><span class="qa-text"
+                  >Skeleton loaders vs spinners — when do you use each? How do
+                  you design good loading UX?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  <strong
+                    >Perceived performance matters more than actual
+                    performance.</strong
+                  >
+                  A skeleton matching the incoming content layout reduces
+                  cognitive load and feels faster than an indeterminate spinner.
+                </p>
+                <ul>
+                  <li>
+                    <strong>Skeleton screens:</strong> When you know the shape
+                    of content (cards, feeds, tables) — matches layout, reduces
+                    shift
+                  </li>
+                  <li>
+                    <strong>Spinners:</strong> For actions (form submit, button
+                    loading) or when content shape is variable
+                  </li>
+                  <li>
+                    <strong>Shimmer animation:</strong> Add to skeletons to
+                    signal activity — static gray feels broken
+                  </li>
+                  <li>
+                    <strong>SWR pattern (best UX):</strong> Show stale data
+                    immediately, refetch in background — user sees content with
+                    zero loading state
+                  </li>
+                </ul>
+                <div class="callout info">
+                  <div class="callout-title">📌 Always handle errors</div>
+                  <p>
+                    Pair every async load with an error state + retry button.
+                    Use React Error Boundaries at the feature level — you want
+                    partial page failures, not full-page crashes.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bottom-nav">
+              <button class="btn" onclick="go('s4')">← State Management</button>
+              <button class="btn primary" onclick="go('s6')">
+                Performance →
+              </button>
+            </div>
+          </section>
+
+          <!-- MODULE 6: PERFORMANCE -->
+          <section class="section" id="sec-s6">
+            <div class="section-head">
+              <div class="sec-num">06</div>
+              <div>
+                <div class="sec-title">Performance Optimization</div>
+                <div class="sec-sub">
+                  CODE SPLITTING · MEMOIZATION · VIRTUAL LISTS · METRICS
+                </div>
+              </div>
+            </div>
+            <div class="topic-row">
+              <span class="topic">Code Splitting</span
+              ><span class="topic">Lazy Loading</span
+              ><span class="topic g">Memoization</span>
+              <span class="topic g">Virtual Lists</span
+              ><span class="topic r">Image Optimization</span
+              ><span class="topic r">Web Workers</span
+              ><span class="topic o">Core Web Vitals</span>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q6.1</span
+                ><span class="qa-text"
+                  >How does code splitting work? What are the splitting
+                  strategies?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  Code splitting breaks a monolithic JS bundle into smaller
+                  chunks loaded on demand. The browser only downloads what it
+                  needs for the current view, reducing initial load time.
+                </p>
+                <ul>
+                  <li>
+                    <strong>Route-level:</strong> Each page as a separate chunk
+                    — highest impact split
+                  </li>
+                  <li>
+                    <strong>Component-level:</strong> Heavy components (rich
+                    text editor, charts) loaded on demand
+                  </li>
+                  <li>
+                    <strong>Vendor chunks:</strong> Third-party code separated
+                    for better cache hit rate
+                  </li>
+                </ul>
+                <pre><span class="cm">// Route-level splitting with React.lazy + Suspense</span>
+<span class="kw">const</span> Dashboard = <span class="fn">lazy</span>(() => import(<span class="str">'./pages/Dashboard'</span>));
+<span class="kw">const</span> Settings  = <span class="fn">lazy</span>(() => import(<span class="str">'./pages/Settings'</span>));
+
+&lt;Suspense fallback={&lt;PageSkeleton /&gt;}&gt;
+  &lt;Routes&gt;
+    &lt;Route path="/dashboard" element={&lt;Dashboard /&gt;} /&gt;
+    &lt;Route path="/settings"  element={&lt;Settings /&gt;}  /&gt;
+  &lt;/Routes&gt;
+&lt;/Suspense&gt;
+
+<span class="cm">// Preload on hover — starts download before user clicks</span>
+<span class="kw">const</span> preload = () => import(<span class="str">'./pages/Dashboard'</span>);
+&lt;Link onMouseEnter={preload} to="/dashboard"&gt;Dashboard&lt;/Link&gt;</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q6.2</span
+                ><span class="qa-text"
+                  >How do virtualized lists work and when do you need
+                  them?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  Virtualization renders only items visible in the viewport —
+                  typically 10–30 items regardless of total list size.
+                  Off-screen items are unmounted or their DOM recycled.
+                </p>
+                <p>
+                  Without virtualization: a 10,000-item list creates 10,000 DOM
+                  nodes. Initial render may take seconds, scrolling will be
+                  janky.
+                </p>
+                <pre><span class="cm">// react-window — renders only visible rows</span>
+<span class="kw">import</span> { FixedSizeList } from <span class="str">'react-window'</span>;
+
+<span class="kw">function</span> <span class="fn">VirtualList</span>({ items }) {
+  <span class="kw">const</span> Row = ({ index, style }) => (
+    &lt;div style={style}&gt;&lt;ListItem item={items[index]} /&gt;&lt;/div&gt;
+  );
+  <span class="kw">return</span> &lt;FixedSizeList height={600} itemCount={items.length} itemSize={72}&gt;{Row}&lt;/FixedSizeList&gt;;
+}</pre>
+                <div class="callout info">
+                  <div class="callout-title">📌 When to virtualize</div>
+                  <p>
+                    Any list with more than 100–200 items. For variable-height
+                    items: <code>VariableSizeList</code>. For 2D grids:
+                    <code>FixedSizeGrid</code>. TanStack Virtual is the modern
+                    full-featured choice.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q6.3</span
+                ><span class="qa-text"
+                  >What are the Core Web Vitals and how do frontend decisions
+                  affect them?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <table>
+                  <tr>
+                    <th>Metric</th>
+                    <th>Measures</th>
+                    <th>Good</th>
+                    <th>Key levers</th>
+                  </tr>
+                  <tr>
+                    <td><strong>LCP</strong></td>
+                    <td>Load time of largest visible element</td>
+                    <td>&lt; 2.5s</td>
+                    <td>Preload LCP image, SSR/SSG, optimize hero image</td>
+                  </tr>
+                  <tr>
+                    <td><strong>INP</strong></td>
+                    <td>Responsiveness to user input</td>
+                    <td>&lt; 200ms</td>
+                    <td>Reduce long tasks, scheduler.yield(), code split</td>
+                  </tr>
+                  <tr>
+                    <td><strong>CLS</strong></td>
+                    <td>Visual stability (unexpected shifts)</td>
+                    <td>&lt; 0.1</td>
+                    <td>Set img width/height, reserve space for ads/embeds</td>
+                  </tr>
+                </table>
+                <pre><span class="cm">&lt;!-- Fix LCP: preload hero with high priority --&gt;</span>
+&lt;link rel="preload" as="image" href="hero.webp" fetchpriority="high"&gt;
+
+<span class="cm">&lt;!-- Fix CLS: always provide dimensions --&gt;</span>
+&lt;img src="photo.jpg" width="800" height="600" alt="..."&gt;
+
+<span class="cm">// Fix INP: yield to browser between interaction and heavy work</span>
+<span class="kw">async function</span> <span class="fn">handleClick</span>() {
+  <span class="fn">updateUI</span>();               <span class="cm">// immediate visual feedback</span>
+  <span class="kw">await</span> scheduler.<span class="fn">yield</span>(); <span class="cm">// let browser paint</span>
+  <span class="kw">await</span> <span class="fn">heavyComputation</span>(); <span class="cm">// then do expensive work</span>
+}</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q6.4</span
+                ><span class="qa-text"
+                  >When do you use Web Workers? What can't they access?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  Web Workers run JavaScript in a background thread, completely
+                  separate from the main thread. They
+                  <strong>cannot access</strong> the DOM, Window, document, or
+                  localStorage — they communicate via <code>postMessage</code>.
+                </p>
+                <h4>Good use cases:</h4>
+                <ul>
+                  <li>Image processing / canvas manipulation</li>
+                  <li>
+                    Large JSON parsing or data transformation (financial data,
+                    CSV import)
+                  </li>
+                  <li>Cryptography (hashing, encryption)</li>
+                  <li>
+                    Real-time data processing (trading ticks, sensor streams)
+                  </li>
+                </ul>
+                <pre><span class="cm">// main.js</span>
+<span class="kw">const</span> worker = <span class="kw">new</span> <span class="fn">Worker</span>(<span class="str">'worker.js'</span>);
+worker.<span class="fn">postMessage</span>({ type: <span class="str">'PROCESS'</span>, payload: largeArray });
+worker.<span class="fn">onmessage</span> = (e) => <span class="fn">setResult</span>(e.data);
+
+<span class="cm">// worker.js — runs off main thread, never blocks UI</span>
+self.<span class="fn">onmessage</span> = ({ data }) => {
+  <span class="kw">const</span> result = data.payload.<span class="fn">map</span>(heavyTransform);
+  self.<span class="fn">postMessage</span>(result);
+};</pre>
+              </div>
+            </div>
+
+            <div class="bottom-nav">
+              <button class="btn" onclick="go('s5')">← Data Fetching</button>
+              <button class="btn primary" onclick="go('s7')">
+                Caching & Offline →
+              </button>
+            </div>
+          </section>
+
+          <!-- MODULE 7: CACHING -->
+          <section class="section" id="sec-s7">
+            <div class="section-head">
+              <div class="sec-num">07</div>
+              <div>
+                <div class="sec-title">Caching & Offline Behavior</div>
+                <div class="sec-sub">
+                  HTTP HEADERS · CDN · SERVICE WORKERS · OFFLINE-FIRST
+                </div>
+              </div>
+            </div>
+            <div class="topic-row">
+              <span class="topic">Browser Cache</span
+              ><span class="topic">HTTP Cache Headers</span
+              ><span class="topic g">CDN Caching</span>
+              <span class="topic g">Stale-while-revalidate</span
+              ><span class="topic r">Prefetch & Preload</span
+              ><span class="topic r">Service Workers</span
+              ><span class="topic o">Offline-first</span>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q7.1</span
+                ><span class="qa-text"
+                  >Explain HTTP caching headers: Cache-Control, ETag,
+                  Last-Modified. How do they work together?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  HTTP caching has two phases: <strong>freshness</strong> (does
+                  the browser even check the server?) and
+                  <strong>validation</strong> (has the resource changed?).
+                </p>
+                <table>
+                  <tr>
+                    <th>Header</th>
+                    <th>Phase</th>
+                    <th>Behavior</th>
+                  </tr>
+                  <tr>
+                    <td><code>Cache-Control: max-age=3600</code></td>
+                    <td>Freshness</td>
+                    <td>Serve from cache for 1 hour, no network request</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cache-Control: no-cache</code></td>
+                    <td>Freshness</td>
+                    <td>Always validate with server (not "no cache"!)</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cache-Control: no-store</code></td>
+                    <td>Freshness</td>
+                    <td>Never cache — for sensitive data only</td>
+                  </tr>
+                  <tr>
+                    <td><code>ETag: "abc123"</code></td>
+                    <td>Validation</td>
+                    <td>
+                      Server fingerprint; browser sends
+                      <code>If-None-Match</code>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>Last-Modified: Mon, ...`</code></td>
+                    <td>Validation</td>
+                    <td>
+                      Timestamp; browser sends <code>If-Modified-Since</code>
+                    </td>
+                  </tr>
+                </table>
+                <pre><span class="cm"># Hashed JS/CSS assets — safe to cache 1 year (file changes = new URL)</span>
+Cache-Control: public, max-age=31536000, immutable
+
+<span class="cm"># HTML — always validate but skip if unchanged (returns 304)</span>
+Cache-Control: no-cache
+ETag: "v1.2.3"</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q7.2</span
+                ><span class="qa-text"
+                  >What is stale-while-revalidate and how does it improve
+                  perceived performance?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  <code>stale-while-revalidate</code> tells the browser: serve
+                  the stale cached response immediately, then fetch fresh in
+                  background. User sees content instantly with zero loading
+                  state.
+                </p>
+                <pre><span class="cm"># Serve immediately for 1 min, accept stale for 1 hour while refreshing</span>
+Cache-Control: max-age=60, stale-while-revalidate=3600</pre>
+                <div class="diagram">
+                  <span class="d-box g">User visits</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box g">Serve stale cache INSTANTLY</span
+                  ><br />
+                  <span
+                    style="
+                      font-size: 0.6rem;
+                      color: var(--muted);
+                      display: block;
+                      margin: 6px 0 2px;
+                    "
+                    >Simultaneously in background:</span
+                  >
+                  <span class="d-box o">Fetch from network</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box o">Update cache</span
+                  ><span class="d-arrow">→</span
+                  ><span class="d-box o">Next visit gets fresh data</span>
+                </div>
+                <p>
+                  React Query's <code>staleTime</code> implements the same idea
+                  for client-side cache — show cached data immediately, trigger
+                  background refetch if older than <code>staleTime</code>.
+                </p>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q7.3</span
+                ><span class="qa-text"
+                  >How do Service Workers enable offline-first? What caching
+                  strategies do you use?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  Service Workers are background scripts that intercept network
+                  requests, sitting between the app and the network. They enable
+                  custom caching, offline support, and background sync.
+                </p>
+                <h4>Four caching strategies:</h4>
+                <ul>
+                  <li>
+                    <strong>Cache First:</strong> Serve from cache, fall back to
+                    network. Best for static assets (images, fonts).
+                  </li>
+                  <li>
+                    <strong>Network First:</strong> Try network, fall back to
+                    cache. Best for dynamic API data.
+                  </li>
+                  <li>
+                    <strong>Stale While Revalidate:</strong> Serve cache
+                    immediately, update in background. Best for non-critical
+                    content.
+                  </li>
+                  <li>
+                    <strong>Cache Only:</strong> Serve from cache only. For
+                    fully pre-cached offline apps.
+                  </li>
+                </ul>
+                <pre><span class="cm">// Workbox strategies (wraps SW Cache API)</span>
+<span class="kw">import</span> { registerRoute } from <span class="str">'workbox-routing'</span>;
+<span class="kw">import</span> { CacheFirst, NetworkFirst, StaleWhileRevalidate } from <span class="str">'workbox-strategies'</span>;
+
+<span class="fn">registerRoute</span>(
+  ({ request }) => request.destination === <span class="str">'image'</span>,
+  <span class="kw">new</span> <span class="fn">CacheFirst</span>({ cacheName: <span class="str">'images'</span> })
+);
+<span class="fn">registerRoute</span>(
+  ({ url }) => url.pathname.<span class="fn">startsWith</span>(<span class="str">'/api/'</span>),
+  <span class="kw">new</span> <span class="fn">NetworkFirst</span>({ cacheName: <span class="str">'api-data'</span> })
+);</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q7.4</span
+                ><span class="qa-text"
+                  >Preload vs prefetch vs preconnect — what's the
+                  difference?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <table>
+                  <tr>
+                    <th>Hint</th>
+                    <th>Priority</th>
+                    <th>Use for</th>
+                  </tr>
+                  <tr>
+                    <td><code>preload</code></td>
+                    <td>High — current page</td>
+                    <td>
+                      Resources needed immediately (LCP image, critical font)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>prefetch</code></td>
+                    <td>Low — future page</td>
+                    <td>Resources for likely next navigation</td>
+                  </tr>
+                  <tr>
+                    <td><code>preconnect</code></td>
+                    <td>DNS + TCP + TLS</td>
+                    <td>Known third-party origins (fonts, analytics, CDN)</td>
+                  </tr>
+                  <tr>
+                    <td><code>dns-prefetch</code></td>
+                    <td>DNS only</td>
+                    <td>
+                      Many third-party origins where full preconnect is too
+                      expensive
+                    </td>
+                  </tr>
+                </table>
+                <pre><span class="cm">&lt;!-- Preload: needed this page immediately --&gt;</span>
+&lt;link rel="preload" href="hero.webp" as="image" fetchpriority="high"&gt;
+&lt;link rel="preload" href="font.woff2" as="font" crossorigin&gt;
+
+<span class="cm">&lt;!-- Prefetch: user might navigate here next --&gt;</span>
+&lt;link rel="prefetch" href="/checkout.js"&gt;
+
+<span class="cm">&lt;!-- Preconnect: open connection early to CDN --&gt;</span>
+&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;</pre>
+              </div>
+            </div>
+
+            <div class="bottom-nav">
+              <button class="btn" onclick="go('s6')">← Performance</button>
+              <button class="btn primary" onclick="go('s8')">Security →</button>
+            </div>
+          </section>
+
+          <!-- MODULE 8: SECURITY -->
+          <section class="section" id="sec-s8">
+            <div class="section-head">
+              <div class="sec-num">08</div>
+              <div>
+                <div class="sec-title">Security</div>
+                <div class="sec-sub">
+                  XSS · CSRF · TOKEN STORAGE · CSP · HTTPS
+                </div>
+              </div>
+            </div>
+            <div class="topic-row">
+              <span class="topic r">XSS</span><span class="topic r">CSRF</span
+              ><span class="topic">Token Storage</span>
+              <span class="topic g">HTTPS & Secure Contexts</span
+              ><span class="topic g">Content Security Policy</span>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q8.1</span
+                ><span class="qa-text"
+                  >What is XSS and how do you prevent it in a React
+                  application?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  <strong>Cross-Site Scripting (XSS)</strong> injects malicious
+                  scripts into pages viewed by other users. A successful attack
+                  can steal cookies, tokens, read DOM, or perform actions as the
+                  user.
+                </p>
+                <h4>Three types:</h4>
+                <ul>
+                  <li>
+                    <strong>Stored XSS:</strong> Malicious script stored in DB
+                    (comments) and served to all users
+                  </li>
+                  <li>
+                    <strong>Reflected XSS:</strong> Script in URL params,
+                    reflected back in response (search page)
+                  </li>
+                  <li>
+                    <strong>DOM-based XSS:</strong> JS reads attacker-controlled
+                    data and writes it to the DOM
+                  </li>
+                </ul>
+                <pre><span class="cm">// React escapes JSX by default — safe:</span>
+<span class="kw">const</span> input = <span class="str">'&lt;script&gt;alert("xss")&lt;/script&gt;'</span>;
+<span class="kw">return</span> &lt;p&gt;{input}&lt;/p&gt;; <span class="cm">// rendered as text, not HTML ✓</span>
+
+<span class="cm">// DANGEROUS — bypasses React escaping:</span>
+<span class="kw">return</span> &lt;p dangerouslySetInnerHTML={{ __html: input }} /&gt;; <span class="cm">// ⚠ XSS risk</span>
+
+<span class="cm">// If you must render HTML, sanitize first:</span>
+<span class="kw">import</span> DOMPurify from <span class="str">'dompurify'</span>;
+<span class="kw">const</span> clean = DOMPurify.<span class="fn">sanitize</span>(userHtml);
+<span class="kw">return</span> &lt;p dangerouslySetInnerHTML={{ __html: clean }} /&gt;;</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q8.2</span
+                ><span class="qa-text"
+                  >What is CSRF and how do SameSite cookies and CSRF tokens
+                  prevent it?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  <strong>CSRF (Cross-Site Request Forgery)</strong> tricks an
+                  authenticated user's browser into making unintended requests.
+                  Since cookies are sent automatically with every request, the
+                  server can't tell if the request came from your app or an
+                  attacker's site.
+                </p>
+                <h4>Defenses:</h4>
+                <ul>
+                  <li>
+                    <strong>SameSite=Strict/Lax cookies:</strong> Browser won't
+                    send cookies for cross-site requests. Lax allows GET
+                    navigations; Strict blocks all cross-site.
+                  </li>
+                  <li>
+                    <strong>CSRF tokens:</strong> Server embeds a random token
+                    in forms; request rejected if missing/wrong.
+                  </li>
+                  <li>
+                    <strong>Custom request headers:</strong> XHR/Fetch with
+                    custom headers can't be sent cross-site without CORS
+                    preflight.
+                  </li>
+                </ul>
+                <pre><span class="cm"># Modern recommendation: SameSite=Lax for most apps</span>
+Set-Cookie: session=abc123; HttpOnly; Secure; SameSite=Lax
+
+<span class="cm"># SameSite=Strict: maximum protection (breaks OAuth redirect flows)</span>
+<span class="cm"># SameSite=None: cross-site allowed (requires Secure flag)</span></pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q8.3</span
+                ><span class="qa-text"
+                  >Where should you store auth tokens (JWTs)? What are the
+                  tradeoffs?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <table>
+                  <tr>
+                    <th>Storage</th>
+                    <th>XSS risk</th>
+                    <th>CSRF risk</th>
+                    <th>Verdict</th>
+                  </tr>
+                  <tr>
+                    <td><strong>localStorage</strong></td>
+                    <td><em>High</em> — any JS can read</td>
+                    <td>None (not auto-sent)</td>
+                    <td>❌ Don't use for tokens</td>
+                  </tr>
+                  <tr>
+                    <td><strong>sessionStorage</strong></td>
+                    <td><em>High</em> — any JS can read</td>
+                    <td>None</td>
+                    <td>❌ Same problem</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Memory (React state)</strong></td>
+                    <td>Medium — lost on refresh</td>
+                    <td>None</td>
+                    <td>✅ Access tokens (short-lived, 15min)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>httpOnly cookie</strong></td>
+                    <td>None — JS cannot read</td>
+                    <td>Use SameSite</td>
+                    <td>✅ Refresh tokens (long-lived)</td>
+                  </tr>
+                </table>
+                <div class="callout tip">
+                  <div class="callout-title">💡 Recommended pattern</div>
+                  <p>
+                    Access tokens in memory (15 min TTL). Refresh tokens in
+                    httpOnly, SameSite=Strict cookies. Use a silent refresh —
+                    call /refresh before access token expires. On page reload,
+                    call /refresh immediately to get a new access token from the
+                    valid cookie.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q8.4</span
+                ><span class="qa-text"
+                  >What is Content Security Policy and how does it mitigate
+                  XSS?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  CSP is an HTTP header that tells browsers which content
+                  sources are legitimate. Even if an attacker injects a script
+                  tag, the browser won't execute it unless the source is in the
+                  allowlist.
+                </p>
+                <pre><span class="cm"># Strict CSP</span>
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' https://trusted-cdn.com;
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data: https:;
+  connect-src 'self' https://api.example.com;
+  frame-ancestors 'none';   <span class="cm"># prevents clickjacking</span>
+
+<span class="cm"># Nonce-based — allows specific inline scripts only</span>
+Content-Security-Policy: script-src 'nonce-{random-per-request}'
+<span class="cm"># In HTML: only scripts with matching nonce execute</span>
+&lt;script nonce="abc123"&gt;...this runs...&lt;/script&gt;</pre>
+              </div>
+            </div>
+
+            <div class="bottom-nav">
+              <button class="btn" onclick="go('s7')">← Caching</button>
+              <button class="btn primary" onclick="go('s9')">
+                Accessibility →
+              </button>
+            </div>
+          </section>
+
+          <!-- MODULE 9: ACCESSIBILITY -->
+          <section class="section" id="sec-s9">
+            <div class="section-head">
+              <div class="sec-num">09</div>
+              <div>
+                <div class="sec-title">Accessibility (a11y)</div>
+                <div class="sec-sub">
+                  SEMANTIC HTML · KEYBOARD NAV · ARIA · SCREEN READERS
+                </div>
+              </div>
+            </div>
+            <div class="topic-row">
+              <span class="topic">Semantic HTML</span
+              ><span class="topic">Keyboard Navigation</span
+              ><span class="topic g">Screen Readers</span>
+              <span class="topic g">ARIA Roles</span
+              ><span class="topic r">Color Contrast</span
+              ><span class="topic o">Focus Management</span>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q9.1</span
+                ><span class="qa-text"
+                  >Why does semantic HTML matter and what replaces div
+                  soup?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  Semantic HTML communicates meaning to assistive technologies.
+                  Screen readers use element roles to create a document outline
+                  that keyboard users navigate by landmarks.
+                </p>
+                <pre><span class="cm">&lt;!-- DIV soup — no meaning for screen readers --&gt;</span>
+&lt;div class="header"&gt;&lt;div class="nav"&gt;&lt;div class="item"&gt;Home&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+
+<span class="cm">&lt;!-- Semantic — screen reader announces landmarks --&gt;</span>
+&lt;header&gt;
+  &lt;nav aria-label="Main navigation"&gt;
+    &lt;a href="/"&gt;Home&lt;/a&gt;
+  &lt;/nav&gt;
+&lt;/header&gt;
+&lt;main&gt;
+  &lt;article&gt;
+    &lt;h1&gt;Article Title&lt;/h1&gt;
+    &lt;p&gt;Content...&lt;/p&gt;
+  &lt;/article&gt;
+&lt;/main&gt;
+&lt;footer&gt;...&lt;/footer&gt;</pre>
+                <h4>Rules:</h4>
+                <ul>
+                  <li>
+                    Use <code>&lt;button&gt;</code> not
+                    <code>&lt;div onclick&gt;</code> — buttons are
+                    keyboard-focusable by default
+                  </li>
+                  <li>Heading hierarchy: H1 → H2 → H3 — never skip levels</li>
+                  <li>
+                    Use <code>&lt;label for="id"&gt;</code> on all form inputs
+                  </li>
+                  <li>
+                    Images need descriptive alt text; decorative images get
+                    <code>alt=""</code>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q9.2</span
+                ><span class="qa-text"
+                  >How do you manage focus for modals and dynamic content?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  When a modal opens, focus must move inside it and be
+                  <em>trapped</em> — keyboard users must not be able to Tab to
+                  content behind it. When closed, focus returns to the trigger
+                  element.
+                </p>
+                <pre><span class="cm">// Focus trap pattern for modal</span>
+<span class="kw">function</span> <span class="fn">Modal</span>({ isOpen, onClose, triggerRef }) {
+  <span class="kw">const</span> modalRef = <span class="fn">useRef</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() => {
+    <span class="kw">if</span> (isOpen) modalRef.current?.<span class="fn">focus</span>();
+    <span class="kw">else</span> triggerRef.current?.<span class="fn">focus</span>(); <span class="cm">// restore on close</span>
+  }, [isOpen]);
+
+  <span class="kw">const</span> onKeyDown = (e) => {
+    <span class="kw">if</span> (e.key === <span class="str">'Escape'</span>) <span class="fn">onClose</span>();
+    <span class="cm">// trap Tab/Shift+Tab within modal focusable elements</span>
+  };
+
+  <span class="kw">return</span> (
+    &lt;div role="dialog" aria-modal="true" aria-labelledby="modal-title"
+         ref={modalRef} tabIndex={-1} onKeyDown={onKeyDown}&gt;
+      &lt;h2 id="modal-title"&gt;Dialog heading&lt;/h2&gt;
+      ...
+    &lt;/div&gt;
+  );
+}</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q9.3</span
+                ><span class="qa-text"
+                  >When do you use ARIA roles and attributes vs native semantic
+                  HTML?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  <strong
+                    >Cardinal rule: No ARIA is better than bad ARIA.</strong
+                  >
+                  Always prefer native HTML elements first — they have built-in
+                  accessibility semantics and keyboard behavior.
+                </p>
+                <table>
+                  <tr>
+                    <th>Attribute</th>
+                    <th>Purpose</th>
+                  </tr>
+                  <tr>
+                    <td><code>aria-label</code></td>
+                    <td>Invisible label for icon buttons, landmarks</td>
+                  </tr>
+                  <tr>
+                    <td><code>aria-labelledby</code></td>
+                    <td>
+                      Reference another element as the label (dialog → heading)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>aria-describedby</code></td>
+                    <td>Additional description (input → error message)</td>
+                  </tr>
+                  <tr>
+                    <td><code>aria-live="polite"</code></td>
+                    <td>
+                      Announce dynamic content (toasts, status, search results)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>aria-expanded</code></td>
+                    <td>State of collapsible elements (accordion, dropdown)</td>
+                  </tr>
+                  <tr>
+                    <td><code>aria-hidden="true"</code></td>
+                    <td>Hide decorative elements from screen readers</td>
+                  </tr>
+                </table>
+                <pre><span class="cm">&lt;!-- Icon button MUST have aria-label --&gt;</span>
+&lt;button aria-label="Close dialog"&gt;
+  &lt;svg aria-hidden="true"&gt;...&lt;/svg&gt;
+&lt;/button&gt;
+
+<span class="cm">&lt;!-- Live region announces changes dynamically --&gt;</span>
+&lt;div role="status" aria-live="polite"&gt;
+  {statusMessage}
+&lt;/div&gt;
+
+<span class="cm">&lt;!-- Color contrast: WCAG AA requires 4.5:1 normal text, 3:1 large text --&gt;</span>
+<span class="cm">&lt;!-- Never rely on color alone to convey information --&gt;</span></pre>
+              </div>
+            </div>
+
+            <div class="bottom-nav">
+              <button class="btn" onclick="go('s8')">← Security</button>
+              <button class="btn primary" onclick="go('s10')">
+                System Design Practice →
+              </button>
+            </div>
+          </section>
+
+          <!-- MODULE 10: SYSTEM DESIGN PRACTICE -->
+          <section class="section" id="sec-s10">
+            <div class="section-head">
+              <div class="sec-num">10</div>
+              <div>
+                <div class="sec-title">Frontend System Design Practice</div>
+                <div class="sec-sub">
+                  REAL PROBLEMS · ARCHITECTURE WALKTHROUGHS
+                </div>
+              </div>
+            </div>
+            <div class="topic-row">
+              <span class="topic">Dashboard</span
+              ><span class="topic">Infinite Feed</span
+              ><span class="topic g">File Upload</span>
+              <span class="topic g">Notification System</span
+              ><span class="topic r">Role-based UI</span
+              ><span class="topic r">Real-time Updates</span>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q10.1</span
+                ><span class="qa-text"
+                  >Design a dashboard with multiple real-time widgets (charts,
+                  tables, metrics).</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  A dashboard has three core challenges:
+                  <em>data freshness across multiple queries</em>,
+                  <em>performance with many simultaneous widgets</em>, and
+                  <em>layout flexibility</em>.
+                </p>
+                <h4>Architecture decisions:</h4>
+                <ul>
+                  <li>
+                    <strong>Data layer:</strong> One React Query per widget —
+                    independent fetch, cache, and refetch lifecycle.
+                    <code>refetchInterval</code> for polling, WebSocket for
+                    real-time streams.
+                  </li>
+                  <li>
+                    <strong>Layout:</strong> CSS Grid with drag-to-resize
+                    (react-grid-layout). Save layout config to user preferences
+                    in backend.
+                  </li>
+                  <li>
+                    <strong>Performance:</strong> Each widget lazy-loaded.
+                    Charts deferred with <code>requestIdleCallback</code>. Heavy
+                    chart libraries code-split separately.
+                  </li>
+                  <li>
+                    <strong>Error isolation:</strong> Each widget wrapped in its
+                    own ErrorBoundary — one failed widget doesn't crash the
+                    dashboard.
+                  </li>
+                </ul>
+                <pre><span class="cm">// Widget — independent data, isolated errors</span>
+<span class="kw">function</span> <span class="fn">MetricWidget</span>({ config }) {
+  <span class="kw">const</span> { data, isLoading } = <span class="fn">useQuery</span>({
+    queryKey: [<span class="str">'metric'</span>, config.id, config.dateRange],
+    queryFn: () => <span class="fn">fetchMetric</span>(config),
+    refetchInterval: config.refreshMs,
+    staleTime: config.refreshMs / <span class="num">2</span>,
+  });
+  <span class="kw">return</span> (
+    &lt;ErrorBoundary fallback={&lt;WidgetError /&gt;}&gt;
+      {isLoading ? &lt;WidgetSkeleton /&gt; : &lt;MetricChart data={data} /&gt;}
+    &lt;/ErrorBoundary&gt;
+  );
+}</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q10.2</span
+                ><span class="qa-text"
+                  >Design an infinite scroll news feed (like
+                  Twitter/LinkedIn).</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  Key challenges: rendering thousands of items efficiently,
+                  handling new posts without disrupting reading position, and
+                  preventing memory leaks.
+                </p>
+                <h4>Architecture:</h4>
+                <ul>
+                  <li>
+                    <strong>Cursor-based pagination:</strong> Never offset —
+                    posts get inserted/deleted dynamically.
+                  </li>
+                  <li>
+                    <strong>Virtualization:</strong> TanStack Virtual or
+                    react-window — render only visible posts. Critical past 50
+                    items.
+                  </li>
+                  <li>
+                    <strong>Intersection Observer:</strong> Trigger next page
+                    when sentinel div enters viewport. No scroll event
+                    listeners.
+                  </li>
+                  <li>
+                    <strong>New posts banner:</strong> Don't auto-prepend new
+                    posts (disrupts reading). Show "14 new posts" banner —
+                    prepend on tap.
+                  </li>
+                  <li>
+                    <strong>Scroll restoration:</strong> Store scroll position
+                    in sessionStorage. Restore on back-navigation.
+                  </li>
+                </ul>
+                <pre><span class="cm">// Infinite scroll with Intersection Observer</span>
+<span class="kw">function</span> <span class="fn">Feed</span>() {
+  <span class="kw">const</span> { data, fetchNextPage, hasNextPage } = <span class="fn">useInfiniteQuery</span>({
+    queryKey: [<span class="str">'feed'</span>],
+    queryFn: ({ pageParam }) => <span class="fn">fetchFeed</span>({ cursor: pageParam }),
+    getNextPageParam: page => page.nextCursor,
+  });
+  <span class="kw">const</span> sentinelRef = <span class="fn">useRef</span>(<span class="kw">null</span>);
+
+  <span class="fn">useEffect</span>(() => {
+    <span class="kw">const</span> observer = <span class="kw">new</span> <span class="fn">IntersectionObserver</span>(
+      ([e]) => e.isIntersecting && hasNextPage && <span class="fn">fetchNextPage</span>(),
+      { threshold: <span class="num">0.1</span> }
+    );
+    <span class="kw">if</span> (sentinelRef.current) observer.<span class="fn">observe</span>(sentinelRef.current);
+    <span class="kw">return</span> () => observer.<span class="fn">disconnect</span>();
+  }, [hasNextPage]);
+
+  <span class="kw">return</span> (
+    &lt;&gt;
+      &lt;VirtualList items={data?.pages.<span class="fn">flat</span>()} /&gt;
+      &lt;div ref={sentinelRef} /&gt;  <span class="cm">// triggers next page load</span>
+    &lt;/&gt;
+  );
+}</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q10.3</span
+                ><span class="qa-text"
+                  >Design a multi-file upload system with progress, preview, and
+                  retry.</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <h4>Architecture decisions:</h4>
+                <ul>
+                  <li>
+                    <strong>File validation:</strong> Check MIME type (not
+                    extension — easily spoofed) and file size immediately.
+                    Reject before upload.
+                  </li>
+                  <li>
+                    <strong>Preview:</strong>
+                    <code>URL.createObjectURL(file)</code> for instant local
+                    preview. Revoke on unmount to prevent memory leaks.
+                  </li>
+                  <li>
+                    <strong>Upload strategy:</strong> Direct upload with XHR for
+                    progress events. For files &gt;5MB: chunked multipart upload
+                    — resumable on network failure.
+                  </li>
+                  <li>
+                    <strong>Concurrency:</strong> Parallel uploads with
+                    concurrency limit of 3–4 to avoid server overwhelm.
+                  </li>
+                  <li>
+                    <strong>Retry:</strong> Exponential backoff, max 3 retries
+                    for transient failures (5xx, network errors).
+                  </li>
+                </ul>
+                <pre><span class="cm">// Chunked upload for large files</span>
+<span class="kw">async function</span> <span class="fn">uploadChunked</span>(file, onProgress) {
+  <span class="kw">const</span> CHUNK = <span class="num">5</span> * <span class="num">1024</span> * <span class="num">1024</span>; <span class="cm">// 5MB chunks</span>
+  <span class="kw">const</span> total = Math.<span class="fn">ceil</span>(file.size / CHUNK);
+  <span class="kw">const</span> uploadId = <span class="kw">await</span> <span class="fn">initUpload</span>(file.name, file.type);
+
+  <span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; total; i++) {
+    <span class="kw">const</span> chunk = file.<span class="fn">slice</span>(i * CHUNK, (i + <span class="num">1</span>) * CHUNK);
+    <span class="kw">await</span> <span class="fn">uploadChunk</span>({ uploadId, chunk, index: i });
+    <span class="fn">onProgress</span>(((i + <span class="num">1</span>) / total) * <span class="num">100</span>);
+  }
+  <span class="kw">return</span> <span class="fn">completeUpload</span>(uploadId);
+}</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q10.4</span
+                ><span class="qa-text"
+                  >Design a real-time notification system for a web
+                  application.</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <h4>Delivery mechanisms (pick one):</h4>
+                <ul>
+                  <li>
+                    <strong>Server-Sent Events (SSE):</strong> Server → client
+                    only over HTTP. Auto-reconnects. Best for notifications —
+                    simpler than WebSockets.
+                  </li>
+                  <li>
+                    <strong>WebSockets:</strong> Full-duplex, persistent. Best
+                    for bidirectional real-time (chat, collaborative editing).
+                  </li>
+                  <li>
+                    <strong>Push API:</strong> Works when tab is closed via
+                    Service Worker. Requires user permission grant.
+                  </li>
+                  <li>
+                    <strong>Polling:</strong> Fallback. Short-poll every 30s for
+                    low-frequency notifications.
+                  </li>
+                </ul>
+                <pre><span class="cm">// SSE-based notification system</span>
+<span class="kw">function</span> <span class="fn">useNotifications</span>() {
+  <span class="kw">const</span> [toasts, setToasts] = <span class="fn">useState</span>([]);
+  <span class="kw">const</span> [unreadCount, setUnreadCount] = <span class="fn">useState</span>(<span class="num">0</span>);
+
+  <span class="fn">useEffect</span>(() => {
+    <span class="kw">const</span> es = <span class="kw">new</span> <span class="fn">EventSource</span>(<span class="str">'/api/notifications/stream'</span>);
+    es.<span class="fn">onmessage</span> = ({ data }) => {
+      <span class="kw">const</span> notif = JSON.<span class="fn">parse</span>(data);
+      <span class="fn">setToasts</span>(prev => [...prev, notif]);
+      <span class="fn">setUnreadCount</span>(n => n + <span class="num">1</span>);
+      <span class="fn">setTimeout</span>(() => <span class="fn">dismiss</span>(notif.id), <span class="num">5000</span>); <span class="cm">// auto-dismiss</span>
+    };
+    es.<span class="fn">onerror</span> = () => es.<span class="fn">close</span>(); <span class="cm">// browser auto-retries SSE</span>
+    <span class="kw">return</span> () => es.<span class="fn">close</span>();
+  }, []);
+
+  <span class="kw">return</span> { toasts, unreadCount };
+}</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q10.5</span
+                ><span class="qa-text"
+                  >How do you implement role-based UI access control
+                  (RBAC)?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <p>
+                  <strong
+                    >Frontend RBAC is a UX concern, not a security
+                    control.</strong
+                  >
+                  Always enforce permissions on the server. Frontend RBAC only
+                  hides/shows UI to improve experience — never treat it as a
+                  security boundary.
+                </p>
+                <pre><span class="cm">// Central permission hook — single source of truth</span>
+<span class="kw">function</span> <span class="fn">usePermission</span>(permission) {
+  <span class="kw">const</span> { user } = <span class="fn">useAuth</span>();
+  <span class="kw">return</span> user?.permissions?.<span class="fn">includes</span>(permission) ?? <span class="kw">false</span>;
+}
+
+<span class="cm">// Declarative guard component</span>
+<span class="kw">function</span> <span class="fn">Allowed</span>({ permission, fallback = <span class="kw">null</span>, children }) {
+  <span class="kw">const</span> ok = <span class="fn">usePermission</span>(permission);
+  <span class="kw">return</span> ok ? children : fallback;
+}
+
+<span class="cm">// Route-level guard</span>
+<span class="kw">function</span> <span class="fn">ProtectedRoute</span>({ permission, element }) {
+  <span class="kw">return</span> <span class="fn">usePermission</span>(permission) ? element : &lt;Navigate to="/403" /&gt;;
+}
+
+<span class="cm">// Usage</span>
+&lt;Allowed permission="manage:users" fallback={&lt;ReadOnlyView /&gt;}&gt;
+  &lt;AdminPanel /&gt;
+&lt;/Allowed&gt;</pre>
+              </div>
+            </div>
+
+            <div class="qa">
+              <div class="qa-q" onclick="tog(this)">
+                <span class="qa-n">Q10.6</span
+                ><span class="qa-text"
+                  >WebSockets vs Server-Sent Events vs polling — when do you use
+                  each for real-time?</span
+                ><span class="qa-tog">+</span>
+              </div>
+              <div class="qa-a">
+                <table>
+                  <tr>
+                    <th>Technology</th>
+                    <th>Direction</th>
+                    <th>Protocol</th>
+                    <th>Best for</th>
+                    <th>Complexity</th>
+                  </tr>
+                  <tr>
+                    <td><strong>WebSockets</strong></td>
+                    <td>Bidirectional</td>
+                    <td>WS/WSS</td>
+                    <td>Chat, collaborative editing, gaming</td>
+                    <td>
+                      High (load balancing needs sticky sessions or pub/sub)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>SSE</strong></td>
+                    <td>Server → Client</td>
+                    <td>HTTP</td>
+                    <td>Notifications, live feeds, dashboards</td>
+                    <td>Low (plain HTTP, auto-reconnect built-in)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Long Polling</strong></td>
+                    <td>Server → Client</td>
+                    <td>HTTP</td>
+                    <td>Fallback for environments blocking SSE/WS</td>
+                    <td>Medium</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Short Polling</strong></td>
+                    <td>Client pulls</td>
+                    <td>HTTP</td>
+                    <td>Low-frequency updates, simple implementation</td>
+                    <td>Low (wastes requests)</td>
+                  </tr>
+                </table>
+                <div class="callout tip">
+                  <div class="callout-title">💡 Default choice</div>
+                  <p>
+                    Start with SSE for most "live update" features —
+                    notifications, feed refresh, order status. Upgrade to
+                    WebSockets only when you need client-to-server streaming
+                    too.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bottom-nav">
+              <button class="btn" onclick="go('s9')">← Accessibility</button>
+              <button class="btn primary" onclick="go('s11')">
+                Cheat Sheet →
+              </button>
+            </div>
+          </section>
+
+          <!-- MODULE 11: CHEAT SHEET -->
+          <section class="section" id="sec-s11">
+            <div class="section-head">
+              <div class="sec-num">★</div>
+              <div>
+                <div class="sec-title">Cheat Sheet</div>
+                <div class="sec-sub">
+                  EVERYTHING AT A GLANCE · INTERVIEW-READY REFERENCE
+                </div>
+              </div>
+            </div>
+            <div class="cheat-grid">
+              <div class="cheat-card">
+                <div class="cheat-title">🌐 Browser Rendering</div>
+                <div class="ci">
+                  <span class="ci-k">Pipeline</span
+                  ><span class="ci-v"
+                    >Parse → Render Tree → Layout → Paint → Composite</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">CSS blocks</span
+                  ><span class="ci-v">render tree (render-blocking)</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Sync JS blocks</span
+                  ><span class="ci-v">HTML parsing (parser-blocking)</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Reflow triggers</span
+                  ><span class="ci-v"
+                    >width, height, margin, DOM mutations</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Composite only</span
+                  ><span class="ci-v">transform, opacity — cheapest</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Layout thrashing</span
+                  ><span class="ci-v"
+                    >read then write in loop — batch them</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">async scripts</span
+                  ><span class="ci-v"
+                    >parallel fetch, executes ASAP, no order</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">defer scripts</span
+                  ><span class="ci-v"
+                    >parallel fetch, after parse, ordered</span
+                  >
+                </div>
+              </div>
+
+              <div class="cheat-card">
+                <div class="cheat-title">⚙️ Event Loop</div>
+                <div class="ci">
+                  <span class="ci-k">Tick order</span
+                  ><span class="ci-v"
+                    >sync → ALL microtasks → 1 macro → render</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Microtasks</span
+                  ><span class="ci-v"
+                    >Promise.then, queueMicrotask, MutationObserver</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Macrotasks</span
+                  ><span class="ci-v"
+                    >setTimeout, setInterval, I/O, UI events</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Long task</span
+                  ><span class="ci-v"
+                    >&gt;50ms on main thread — breaks INP</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Break long tasks</span
+                  ><span class="ci-v">scheduler.yield() between chunks</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">rAF timing</span
+                  ><span class="ci-v">after microtasks, before paint</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Promise vs setTimeout</span
+                  ><span class="ci-v">Promise always runs first</span>
+                </div>
+              </div>
+
+              <div class="cheat-card">
+                <div class="cheat-title">🏗️ Architecture</div>
+                <div class="ci">
+                  <span class="ci-k">Colocation</span
+                  ><span class="ci-v">state as close to usage as possible</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Container pattern</span
+                  ><span class="ci-v">separate data logic from view logic</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Compound components</span
+                  ><span class="ci-v">share state via Context implicitly</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Feature folders</span
+                  ><span class="ci-v">colocate by feature not type</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Barrel exports</span
+                  ><span class="ci-v"
+                    >feature/index.ts = public API surface</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Polymorphic as prop</span
+                  ><span class="ci-v">render any element, preserve styles</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">forwardRef</span
+                  ><span class="ci-v"
+                    >required for design system components</span
+                  >
+                </div>
+              </div>
+
+              <div class="cheat-card">
+                <div class="cheat-title">📦 State Management</div>
+                <div class="ci">
+                  <span class="ci-k">Local UI state</span
+                  ><span class="ci-v">useState</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">URL state</span
+                  ><span class="ci-v"
+                    >filters, search, pagination — shareable</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Server state</span
+                  ><span class="ci-v">React Query / SWR — not Redux</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Global UI</span
+                  ><span class="ci-v">Context or Zustand/Jotai</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Context pitfall</span
+                  ><span class="ci-v"
+                    >ALL consumers re-render on any change</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Fix Context perf</span
+                  ><span class="ci-v">split contexts + useMemo value</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Redux when?</span
+                  ><span class="ci-v"
+                    >complex state machines + DevTools + middleware</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Normalize when?</span
+                  ><span class="ci-v"
+                    >same entity in multiple state locations</span
+                  >
+                </div>
+              </div>
+
+              <div class="cheat-card">
+                <div class="cheat-title">🔄 Data Fetching</div>
+                <div class="ci">
+                  <span class="ci-k">GraphQL over REST</span
+                  ><span class="ci-v"
+                    >multi-client, relational, over/underfetch</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Cursor pagination</span
+                  ><span class="ci-v"
+                    >stable for dynamic data — use over offset</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Debounce</span
+                  ><span class="ci-v">fire after N ms silence → search</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Throttle</span
+                  ><span class="ci-v">fire at most every N ms → scroll</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Optimistic UI</span
+                  ><span class="ci-v"
+                    >update → API → reconcile; store prev for rollback</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Skeleton loaders</span
+                  ><span class="ci-v"
+                    >when shape of incoming content is known</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">staleTime</span
+                  ><span class="ci-v"
+                    >how long React Query serves cache as fresh</span
+                  >
+                </div>
+              </div>
+
+              <div class="cheat-card">
+                <div class="cheat-title">⚡ Performance</div>
+                <div class="ci">
+                  <span class="ci-k">Code splitting</span
+                  ><span class="ci-v">React.lazy + dynamic import()</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Preload on hover</span
+                  ><span class="ci-v">import('./Page') on mouseenter</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Virtualize when</span
+                  ><span class="ci-v">&gt;100–200 items in a list</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">LCP good</span
+                  ><span class="ci-v">&lt; 2.5s</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">INP good</span
+                  ><span class="ci-v">&lt; 200ms</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">CLS good</span
+                  ><span class="ci-v"
+                    >&lt; 0.1 — always set img dimensions</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Web Workers</span
+                  ><span class="ci-v">heavy CPU work off main thread</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">will-change</span
+                  ><span class="ci-v">use surgically — costs GPU memory</span>
+                </div>
+              </div>
+
+              <div class="cheat-card">
+                <div class="cheat-title">💾 Caching</div>
+                <div class="ci">
+                  <span class="ci-k">Hashed assets</span
+                  ><span class="ci-v"
+                    >max-age=31536000, immutable (1 year)</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">HTML</span
+                  ><span class="ci-v">no-cache + ETag (always validate)</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">SWR header</span
+                  ><span class="ci-v"
+                    >serve stale, fetch fresh in background</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">preload</span
+                  ><span class="ci-v"
+                    >current page critical resources (LCP image)</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">prefetch</span
+                  ><span class="ci-v">next page (low priority)</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">preconnect</span
+                  ><span class="ci-v"
+                    >early connection to third-party origins</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">SW Cache First</span
+                  ><span class="ci-v"
+                    >static assets — images, fonts, icons</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">SW Network First</span
+                  ><span class="ci-v">API data with offline fallback</span>
+                </div>
+              </div>
+
+              <div class="cheat-card">
+                <div class="cheat-title">🔐 Security</div>
+                <div class="ci">
+                  <span class="ci-k">XSS prevention</span
+                  ><span class="ci-v"
+                    >escape output; DOMPurify for innerHTML</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">CSRF prevention</span
+                  ><span class="ci-v">SameSite=Lax + CSRF tokens</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Access tokens</span
+                  ><span class="ci-v">in memory (React state) — 15min TTL</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Refresh tokens</span
+                  ><span class="ci-v">httpOnly, SameSite=Strict cookie</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">httpOnly</span
+                  ><span class="ci-v">JS cannot read — XSS safe</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">CSP header</span
+                  ><span class="ci-v"
+                    >allowlist script sources — limits XSS damage</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">frame-ancestors none</span
+                  ><span class="ci-v">prevents clickjacking</span>
+                </div>
+              </div>
+
+              <div class="cheat-card">
+                <div class="cheat-title">♿ Accessibility</div>
+                <div class="ci">
+                  <span class="ci-k">First ARIA rule</span
+                  ><span class="ci-v">prefer native HTML elements always</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Headings</span
+                  ><span class="ci-v">never skip levels (H1→H2→H3)</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Icon buttons</span
+                  ><span class="ci-v"
+                    >aria-label required; svg aria-hidden</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Modal open</span
+                  ><span class="ci-v">move focus inside + trap Tab</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Modal close</span
+                  ><span class="ci-v">return focus to trigger element</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Escape key</span
+                  ><span class="ci-v">always closes overlays and dialogs</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">aria-live="polite"</span
+                  ><span class="ci-v">announce dynamic status changes</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Color contrast</span
+                  ><span class="ci-v">4.5:1 normal text (WCAG AA)</span>
+                </div>
+              </div>
+
+              <div class="cheat-card">
+                <div class="cheat-title">🏛️ System Design Patterns</div>
+                <div class="ci">
+                  <span class="ci-k">Dashboard</span
+                  ><span class="ci-v"
+                    >per-widget queries + ErrorBoundary + lazy charts</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Infinite feed</span
+                  ><span class="ci-v"
+                    >cursor + virtual list + new posts banner</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">File upload</span
+                  ><span class="ci-v"
+                    >chunked &gt;5MB, 3-4 parallel, retry backoff</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Notifications</span
+                  ><span class="ci-v"
+                    >SSE delivery + toast queue + unread count</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">RBAC frontend</span
+                  ><span class="ci-v"
+                    >usePermission + Allowed guard component</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Real-time</span
+                  ><span class="ci-v"
+                    >SSE for push, WebSockets for bidirectional</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Frontend RBAC</span
+                  ><span class="ci-v">UX only — always enforce on server</span>
+                </div>
+              </div>
+
+              <div class="cheat-card">
+                <div class="cheat-title">📊 Storage Quick Ref</div>
+                <div class="ci">
+                  <span class="ci-k">Cookie</span
+                  ><span class="ci-v">4KB; auto-sent; httpOnly = XSS safe</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">localStorage</span
+                  ><span class="ci-v"
+                    >5–10MB; persists; JS-readable (XSS risk)</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">sessionStorage</span
+                  ><span class="ci-v">5–10MB; tab lifetime only</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">IndexedDB</span
+                  ><span class="ci-v">Hundreds MB; async; offline data</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">Cache API</span
+                  ><span class="ci-v"
+                    >Service Worker; request/response pairs</span
+                  >
+                </div>
+              </div>
+
+              <div class="cheat-card">
+                <div class="cheat-title">🎯 Interview Formula</div>
+                <div class="ci">
+                  <span class="ci-k">1. Clarify</span
+                  ><span class="ci-v"
+                    >scale, users, platforms, constraints</span
+                  >
+                </div>
+                <div class="ci">
+                  <span class="ci-k">2. Component hierarchy</span
+                  ><span class="ci-v">sketch the UI tree</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">3. State design</span
+                  ><span class="ci-v">what, where, who owns it</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">4. Data layer</span
+                  ><span class="ci-v">API design, caching, errors</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">5. Performance</span
+                  ><span class="ci-v">identify bottlenecks proactively</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">6. Edge cases</span
+                  ><span class="ci-v">offline, empty states, errors, a11y</span>
+                </div>
+                <div class="ci">
+                  <span class="ci-k">7. Scale</span
+                  ><span class="ci-v">what breaks at 10x users / 10x data</span>
+                </div>
+              </div>
+            </div>
+            <div class="bottom-nav">
+              <button class="btn" onclick="go('s10')">
+                ← System Design Practice
+              </button>
+              <button class="btn primary" onclick="go('overview')">
+                Back to Overview ↑
+              </button>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+    <script>
+      const sections = [
+        "overview",
+        "s1",
+        "s2",
+        "s3",
+        "s4",
+        "s5",
+        "s6",
+        "s7",
+        "s8",
+        "s9",
+        "s10",
+        "s11",
+      ];
+      const visited = new Set(["overview"]);
+      function toggleMenu() {
+        const d = document.getElementById("navDrawer"),
+          b = document.getElementById("menuBtn");
+        d.classList.toggle("open");
+        b.textContent = d.classList.contains("open") ? "✕ Close" : "☰ Menu";
+      }
+      function go(id) {
+        document
+          .querySelectorAll(".section")
+          .forEach((s) => s.classList.remove("active"));
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((n) => n.classList.remove("active"));
+        const sec = document.getElementById("sec-" + id);
+        if (sec) {
+          sec.classList.add("active");
+          sec.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        const nav = document.querySelector('[data-s="' + id + '"]');
+        if (nav) nav.classList.add("active");
+        visited.add(id);
+        const d = document.getElementById("navDrawer"),
+          b = document.getElementById("menuBtn");
+        if (d) {
+          d.classList.remove("open");
+          if (b) b.textContent = "☰ Menu";
+        }
+        document.querySelectorAll(".nav-item").forEach((n) => {
+          if (visited.has(n.dataset.s) && !n.classList.contains("active"))
+            n.classList.add("visited");
+        });
+        const pct = Math.round((visited.size / sections.length) * 100);
+        document.getElementById("pct").textContent = pct + "%";
+        document.getElementById("fill").style.width = pct + "%";
+      }
+      function tog(el) {
+        el.closest(".qa").classList.toggle("open");
+      }
+      document.querySelector('[data-s="overview"]').classList.add("active");
+    </script>
+  </body>
+</html>

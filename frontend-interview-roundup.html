@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frontend Interview — Quick Roundup</title>
+
+<style>
+:root{
+  --bg:#09080c;--surface:#100f16;--surface2:#17161f;--surface3:#1f1d2b;
+  --gold:#f5c842;--gold2:#e8a020;--rose:#f2706d;--teal:#2dd4bf;--purple:#a78bfa;
+  --text:#e4dff5;--muted:#4a475e;--border:rgba(245,200,66,0.07);--sidebar-w:250px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 50% 40% at 75% 5%,rgba(245,200,66,0.04) 0%,transparent 70%),radial-gradient(ellipse 40% 50% at 5% 90%,rgba(167,139,250,0.04) 0%,transparent 70%);pointer-events:none;z-index:0;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:rgba(245,200,66,0.15);border-radius:2px;}
+
+/* ── APP SHELL ── */
+.app{display:flex;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);height:100vh;position:sticky;top:0;overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:none;}
+.sidebar::-webkit-scrollbar{display:none;}
+.sb-brand{padding:24px 20px 18px;border-bottom:1px solid var(--border);}
+.sb-eyebrow{font-family:'Courier New',Courier,monospace;font-size:0.5rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold2);margin-bottom:8px;}
+.sb-title{font-family:'Georgia',serif;font-size:1.25rem;font-weight:800;color:var(--gold);line-height:1.15;}
+.sb-sub{font-size:0.7rem;color:var(--muted);margin-top:5px;}
+
+/* score pill */
+.sb-score{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.score-circle{width:44px;height:44px;flex-shrink:0;position:relative;}
+.score-circle svg{width:44px;height:44px;transform:rotate(-90deg);}
+.sc-bg{fill:none;stroke:rgba(255,255,255,0.05);stroke-width:3;}
+.sc-fill{fill:none;stroke:var(--gold);stroke-width:3;stroke-linecap:round;stroke-dasharray:113;stroke-dashoffset:113;transition:stroke-dashoffset 0.6s ease;}
+.sc-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Georgia',serif;font-size:0.75rem;font-weight:700;color:var(--gold);}
+.score-info{flex:1;}
+.score-label{font-family:'Courier New',Courier,monospace;font-size:0.52rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);}
+.score-fraction{font-family:'Georgia',serif;font-size:1.1rem;font-weight:700;color:var(--text);}
+
+/* nav items */
+.sb-nav{padding:12px 0;flex:1;}
+.nav-section{padding:8px 20px 4px;}
+.nav-section-label{font-family:'Courier New',Courier,monospace;font-size:0.48rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 20px;cursor:pointer;border-left:2px solid transparent;transition:all 0.2s;font-size:0.82rem;color:var(--muted);}
+.nav-item:hover{color:var(--text);background:rgba(245,200,66,0.04);}
+.nav-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(245,200,66,0.06);}
+.nav-item.done{color:var(--teal);}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.nav-count{margin-left:auto;font-family:'Courier New',Courier,monospace;font-size:0.6rem;background:var(--surface3);padding:1px 6px;border-radius:10px;}
+
+/* mobile */
+.menu-btn{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--surface2);border:1px solid var(--border);color:var(--gold);font-size:0.8rem;padding:8px 12px;border-radius:8px;cursor:pointer;font-family:'Courier New',Courier,monospace;}
+.nav-overlay{display:none;}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;}
+
+/* ── HERO ── */
+.hero{padding:60px 60px 40px;border-bottom:1px solid var(--border);}
+.hero-tag{font-family:'Courier New',Courier,monospace;font-size:0.55rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold2);margin-bottom:14px;}
+.hero-h{font-family:'Georgia',serif;font-size:2.8rem;font-weight:800;line-height:1.05;letter-spacing:-1.5px;color:var(--gold);}
+.hero-sub{font-size:1rem;color:var(--muted);margin-top:14px;max-width:520px;line-height:1.7;}
+.hero-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:28px;}
+.hero-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 18px;cursor:pointer;transition:all 0.2s;}
+.hero-card:hover{border-color:rgba(245,200,66,0.25);transform:translateY(-2px);}
+.hero-card-num{font-family:'Courier New',Courier,monospace;font-size:0.55rem;letter-spacing:3px;color:var(--gold2);margin-bottom:4px;}
+.hero-card-name{font-family:'Georgia',serif;font-size:0.9rem;font-weight:700;color:var(--text);}
+.hero-card-count{font-size:0.72rem;color:var(--muted);margin-top:3px;}
+
+/* ── SECTION WRAPPER ── */
+.section{display:none;padding:40px 60px 60px;max-width:900px;}
+.section.active{display:block;animation:fadein 0.3s ease;}
+.hero-section{display:none;max-width:900px;}
+.hero-section.active{display:block;animation:fadein 0.3s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.sec-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border);}
+.sec-num{font-family:'Georgia',serif;font-size:2.5rem;font-weight:800;color:rgba(245,200,66,0.15);line-height:1;min-width:56px;}
+.sec-info{}
+.sec-title{font-family:'Georgia',serif;font-size:1.5rem;font-weight:800;color:var(--text);}
+.sec-desc{font-size:0.85rem;color:var(--muted);margin-top:5px;line-height:1.6;}
+
+/* ── PROGRESS BAR ── */
+.sec-prog{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.sec-prog-bar{flex:1;height:2px;background:var(--surface3);border-radius:2px;overflow:hidden;}
+.sec-prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:0%;transition:width 0.4s ease;border-radius:2px;}
+.sec-prog-label{font-family:'Courier New',Courier,monospace;font-size:0.58rem;color:var(--muted);white-space:nowrap;}
+
+/* ── CARDS ── */
+.cards-grid{display:flex;flex-direction:column;gap:12px;}
+.flip-card{
+  border-radius:12px;border:1px solid var(--border);
+  background:var(--surface2);overflow:hidden;
+  transition:border-color 0.25s;
+}
+.flip-card.flipped{border-color:rgba(245,200,66,0.18);background:var(--surface3);}
+.flip-card.marked-got{border-color:rgba(45,212,191,0.35);}
+.flip-card.marked-missed{border-color:rgba(242,112,109,0.3);}
+
+/* Question row — always visible */
+.flip-front{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:14px;padding:18px 20px;cursor:pointer;
+}
+.flip-front-left{flex:1;}
+.flip-hint{font-family:'Courier New',Courier,monospace;font-size:0.48rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.flip-q{font-size:0.92rem;font-weight:500;line-height:1.6;color:var(--text);}
+.flip-chevron{flex-shrink:0;font-size:1rem;color:var(--gold);transition:transform 0.3s;margin-top:2px;line-height:1;}
+.flip-card.flipped .flip-chevron{transform:rotate(180deg);}
+
+/* Answer panel — hidden until flipped, grows to fit content */
+.flip-back{
+  max-height:0;overflow:hidden;
+  transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.flip-card.flipped .flip-back{max-height:1000px;}
+.flip-back-inner{
+  padding:0 20px 18px;
+  border-top:1px solid rgba(255,255,255,0.05);
+}
+.flip-a{font-size:0.88rem;line-height:1.8;color:rgba(228,223,245,0.85);padding-top:14px;}
+.flip-a strong{color:var(--gold);}
+.flip-a code{font-family:'Courier New',Courier,monospace;font-size:0.8em;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:var(--teal);}
+.flip-a br{display:block;content:'';margin-top:6px;}
+
+/* Got it / Missed it buttons */
+.flip-actions{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.05);}
+.flip-btn{padding:6px 14px;border-radius:7px;border:1px solid;font-size:0.72rem;font-family:'Courier New',Courier,monospace;cursor:pointer;transition:all 0.2s;background:transparent;}
+.flip-btn.got{border-color:rgba(45,212,191,0.35);color:var(--teal);}
+.flip-btn.got:hover{background:rgba(45,212,191,0.1);}
+.flip-btn.missed{border-color:rgba(242,112,109,0.35);color:var(--rose);}
+.flip-btn.missed:hover{background:rgba(242,112,109,0.1);}
+.flip-btn:disabled{opacity:0.3;cursor:default;}
+
+/* ── RAPID FIRE (text reveal) ── */
+.rf-list{display:flex;flex-direction:column;gap:10px;}
+.rf-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.rf-q{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;cursor:pointer;gap:12px;}
+.rf-q-text{font-size:0.9rem;font-weight:500;}
+.rf-toggle{font-family:'Courier New',Courier,monospace;font-size:0.7rem;color:var(--gold);transition:transform 0.2s;flex-shrink:0;}
+.rf-item.open .rf-toggle{transform:rotate(45deg);}
+.rf-a{max-height:0;overflow:hidden;transition:max-height 0.35s ease;font-size:0.85rem;line-height:1.7;color:rgba(228,223,245,0.75);}
+.rf-item.open .rf-a{max-height:400px;}
+.rf-a-inner{padding:0 18px 16px;border-top:1px solid var(--border);}
+.rf-a-inner code{font-family:'Courier New',Courier,monospace;font-size:0.8em;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:var(--teal);}
+
+/* ── MOCK SCENARIO CARDS ── */
+.scenario-list{display:flex;flex-direction:column;gap:18px;}
+.scenario{background:var(--surface2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.sc-head{padding:18px 22px;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.sc-badge{font-family:'Courier New',Courier,monospace;font-size:0.5rem;letter-spacing:3px;text-transform:uppercase;padding:3px 8px;border-radius:4px;margin-bottom:8px;display:inline-block;}
+.sc-badge.system{background:rgba(245,200,66,0.1);color:var(--gold2);}
+.sc-badge.react{background:rgba(45,212,191,0.1);color:var(--teal);}
+.sc-badge.js{background:rgba(167,139,250,0.1);color:var(--purple);}
+.sc-badge.machine{background:rgba(242,112,109,0.1);color:var(--rose);}
+.sc-q-text{font-size:0.95rem;font-weight:500;line-height:1.5;}
+.sc-expand{color:var(--gold);font-size:1.1rem;transition:transform 0.2s;flex-shrink:0;margin-top:4px;}
+.scenario.open .sc-expand{transform:rotate(45deg);}
+.sc-body{max-height:0;overflow:hidden;transition:max-height 0.4s ease;}
+.scenario.open .sc-body{max-height:1200px;}
+.sc-body-inner{padding:0 22px 20px;border-top:1px solid var(--border);}
+.sc-body-inner h4{font-family:'Georgia',serif;font-size:0.85rem;color:var(--gold2);margin:14px 0 6px;}
+.sc-body-inner p{font-size:0.85rem;line-height:1.7;color:rgba(228,223,245,0.75);}
+.sc-body-inner ul{font-size:0.85rem;line-height:1.8;color:rgba(228,223,245,0.75);padding-left:18px;}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{display:flex;gap:12px;margin-top:40px;padding-top:28px;border-top:1px solid var(--border);}
+.btn{padding:10px 20px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Courier New',Courier,monospace;font-size:0.72rem;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;}
+.btn:hover{background:var(--surface3);border-color:rgba(245,200,66,0.2);}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#09080c;font-weight:600;}
+.btn.primary:hover{background:var(--gold2);}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .sidebar{
+    position:fixed;left:-100vw;top:0;z-index:300;
+    width:100vw;min-width:unset;
+    transition:left 0.3s ease;
+    height:100vh;overflow-y:auto;
+  }
+  .sidebar.open{left:0;}
+  .sb-close-btn{display:block !important;}
+  .nav-overlay{display:block;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:250;opacity:0;pointer-events:none;transition:opacity 0.3s;}
+  .nav-overlay.visible{opacity:1;pointer-events:all;}
+  .menu-btn{display:block;}
+  .main{padding-top:0;}
+  .hero{padding:56px 16px 28px;}
+  .hero-h{font-size:1.8rem;}
+  .hero-sub{font-size:0.9rem;}
+  .hero-cards{gap:8px;}
+  .hero-card{padding:12px 14px;}
+  .section,.hero-section{padding:24px 16px 40px;}
+  .hero-section{padding:0;}
+  /* cards */
+  .flip-front{padding:14px 14px;gap:10px;}
+  .flip-q{font-size:0.88rem;}
+  .flip-back-inner{padding:0 14px 14px;}
+  .flip-a{font-size:0.84rem;}
+  .flip-actions{flex-wrap:wrap;gap:6px;}
+  .flip-btn{font-size:0.68rem;padding:6px 12px;flex:1;text-align:center;}
+  /* rapid fire */
+  .rf-q{padding:12px 14px;}
+  .rf-q-text{font-size:0.85rem;}
+  .rf-a-inner{padding:0 14px 14px;}
+  /* scenarios */
+  .sc-head{padding:14px 16px;}
+  .sc-q-text{font-size:0.88rem;}
+  .sc-body-inner{padding:0 16px 16px;}
+  /* bottom nav */
+  .bottom-nav{flex-direction:column;}
+  .btn{text-align:center;}
+  /* section header */
+  .sec-head{gap:10px;}
+  .sec-num{font-size:1.8rem;min-width:42px;}
+  .sec-title{font-size:1.2rem;}
+}
+</style>
+</head>
+<body>
+
+<button class="menu-btn" id="menuBtn" onclick="toggleMenu()">☰ Menu</button>
+<div class="nav-overlay" id="overlay" onclick="toggleMenu()"></div>
+
+<div class="app">
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-brand">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="sb-eyebrow">Frontend Interview</div>
+        <div class="sb-title">Quick Roundup</div>
+        <div class="sb-sub">Self-assessment · 6 sections</div>
+      </div>
+      <button onclick="toggleMenu()" style="display:none;background:none;border:1px solid rgba(245,200,66,0.2);color:var(--gold);font-size:0.7rem;padding:5px 10px;border-radius:6px;cursor:pointer;font-family:'Courier New',Courier,monospace;flex-shrink:0;margin-top:2px;" class="sb-close-btn">✕</button>
+    </div>
+  </div>
+
+  <div class="sb-score">
+    <div class="score-circle">
+      <svg viewBox="0 0 44 44"><circle class="sc-bg" cx="22" cy="22" r="18"/><circle class="sc-fill" id="ringFill" cx="22" cy="22" r="18"/></svg>
+      <div class="sc-num" id="ringPct">0%</div>
+    </div>
+    <div class="score-info">
+      <div class="score-label">Score</div>
+      <div class="score-fraction"><span id="scoreGot">0</span> / <span id="scoreTotal">0</span> cards</div>
+    </div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="nav-section">
+      <div class="nav-section-label">System Design</div>
+      <div class="nav-item active" data-sec="s1" onclick="go('s1')"><span class="nav-dot"></span>Requirement Clarification<span class="nav-count">5</span></div>
+      <div class="nav-item" data-sec="s2" onclick="go('s2')"><span class="nav-dot"></span>Component Breakdown<span class="nav-count">5</span></div>
+      <div class="nav-item" data-sec="s3" onclick="go('s3')"><span class="nav-dot"></span>State Flow Design<span class="nav-count">5</span></div>
+      <div class="nav-item" data-sec="s4" onclick="go('s4')"><span class="nav-dot"></span>API Handling Strategy<span class="nav-count">5</span></div>
+      <div class="nav-item" data-sec="s5" onclick="go('s5')"><span class="nav-dot"></span>Performance<span class="nav-count">5</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label">Interview Prep</div>
+      <div class="nav-item" data-sec="s6" onclick="go('s6')"><span class="nav-dot"></span>JS Rapid Fire<span class="nav-count">10</span></div>
+      <div class="nav-item" data-sec="s7" onclick="go('s7')"><span class="nav-dot"></span>React Scenarios<span class="nav-count">6</span></div>
+      <div class="nav-item" data-sec="s8" onclick="go('s8')"><span class="nav-dot"></span>Machine Coding Mock<span class="nav-count">4</span></div>
+      <div class="nav-item" data-sec="s9" onclick="go('s9')"><span class="nav-dot"></span>System Design Mock<span class="nav-count">4</span></div>
+    </div>
+  </nav>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+<!-- HERO -->
+<div class="hero-section active" id="sec-hero">
+  <div class="hero" style="padding-bottom:40px;border:none;">
+    <div class="hero-tag">Final Roundup · Test Yourself</div>
+    <h1 class="hero-h">Still remember<br>everything?</h1>
+    <p class="hero-sub">Flip cards to reveal answers. Mark what you know and what needs work. Track your score as you go.</p>
+    <div class="hero-cards">
+      <div class="hero-card" onclick="go('s1')"><div class="hero-card-num">01</div><div class="hero-card-name">Requirements</div><div class="hero-card-count">5 cards</div></div>
+      <div class="hero-card" onclick="go('s2')"><div class="hero-card-num">02</div><div class="hero-card-name">Components</div><div class="hero-card-count">5 cards</div></div>
+      <div class="hero-card" onclick="go('s3')"><div class="hero-card-num">03</div><div class="hero-card-name">State Flow</div><div class="hero-card-count">5 cards</div></div>
+      <div class="hero-card" onclick="go('s4')"><div class="hero-card-num">04</div><div class="hero-card-name">API Handling</div><div class="hero-card-count">5 cards</div></div>
+      <div class="hero-card" onclick="go('s5')"><div class="hero-card-num">05</div><div class="hero-card-name">Performance</div><div class="hero-card-count">5 cards</div></div>
+      <div class="hero-card" onclick="go('s6')"><div class="hero-card-num">06</div><div class="hero-card-name">JS Rapid Fire</div><div class="hero-card-count">10 Q&amp;A</div></div>
+      <div class="hero-card" onclick="go('s7')"><div class="hero-card-num">07</div><div class="hero-card-name">React Scenarios</div><div class="hero-card-count">6 Q&amp;A</div></div>
+      <div class="hero-card" onclick="go('s8')"><div class="hero-card-num">08</div><div class="hero-card-name">Machine Coding</div><div class="hero-card-count">4 problems</div></div>
+      <div class="hero-card" onclick="go('s9')"><div class="hero-card-num">09</div><div class="hero-card-name">Design Mock</div><div class="hero-card-count">4 problems</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── S1: REQUIREMENT CLARIFICATION ── -->
+<div class="section" id="sec-s1">
+  <div class="sec-head"><div class="sec-num">01</div><div class="sec-info"><div class="sec-title">Requirement Clarification</div><div class="sec-desc">Flip each card. Can you answer before looking?</div></div></div>
+  <div class="sec-prog"><div class="sec-prog-bar"><div class="sec-prog-fill" id="prog-s1"></div></div><div class="sec-prog-label" id="lbl-s1">0 / 5</div></div>
+  <div class="cards-grid" id="cards-s1">
+
+    <div class="flip-card" id="c-s1-0">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">What are the first 3 clarifying questions you ask when given a frontend system design problem?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>1. Who are the users and how many?</strong> (Consumer vs internal, 1K vs 10M users changes everything)<br><br><strong>2. What platforms / devices?</strong> (Mobile-first, desktop-only, PWA offline needed?)<br><br><strong>3. What are the MVP features vs nice-to-haves?</strong> (Scope the problem before designing anything)</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s1',0,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s1',0,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s1-1">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">Why does scale matter in frontend system design? Give a concrete example where it changes your decision.</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a">At <strong>10K users</strong>: simple REST + useState is fine.<br>At <strong>10M users</strong>: you now need CDN edge caching, code splitting, image optimization, and possibly SSR for load time.<br><br>Scale also changes <em>state management</em> — at small scale, Context works; at large scale, prop drilling and re-renders become real problems worth solving.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s1',1,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s1',1,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s1-2">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">What questions do you ask about real-time requirements before designing a data-fetching strategy?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>How stale is acceptable?</strong> (5s lag OK or must be live?)<br><strong>Is it read-only or bidirectional?</strong> (SSE vs WebSocket)<br><strong>What's the update frequency?</strong> (100ms ticks = WebSocket, 30s = polling)<br><strong>Does it work offline?</strong> (Service Worker + background sync needed?)</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s1',2,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s1',2,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s1-3">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">You're asked to design a "social feed." What constraints do you clarify about the content before designing?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>Type of content:</strong> text-only vs images/video? (Affects media handling, lazy loading strategy)<br><strong>User-generated or curated?</strong> (Moderation, CDN uploads)<br><strong>Infinite scroll or paginated?</strong> (Virtualization needed?)<br><strong>Personalised ranking?</strong> (API pagination: cursor vs offset)</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s1',3,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s1',3,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s1-4">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">What accessibility requirements should you proactively raise in a system design interview?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a">Proactively mention: <strong>WCAG AA compliance</strong> (keyboard nav, color contrast 4.5:1), screen reader support (semantic HTML, ARIA live regions for dynamic content), focus management for modals, and reduced-motion support for animations. Shows senior awareness without being asked.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s1',4,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s1',4,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+  </div>
+  <div class="bottom-nav"><button class="btn" onclick="go('hero')">↑ Overview</button><button class="btn primary" onclick="go('s2')">Component Breakdown →</button></div>
+</div>
+
+<!-- ── S2: COMPONENT BREAKDOWN ── -->
+<div class="section" id="sec-s2">
+  <div class="sec-head"><div class="sec-num">02</div><div class="sec-info"><div class="sec-title">Component Breakdown</div><div class="sec-desc">How you decompose UI in an interview.</div></div></div>
+  <div class="sec-prog"><div class="sec-prog-bar"><div class="sec-prog-fill" id="prog-s2"></div></div><div class="sec-prog-label" id="lbl-s2">0 / 5</div></div>
+  <div class="cards-grid" id="cards-s2">
+
+    <div class="flip-card" id="c-s2-0">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">What's the first thing you draw when breaking down a UI into components in an interview?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a">Draw a <strong>rough wireframe first, not component names.</strong> Box the UI into visual regions, then name components from top down: page → layout → feature → atomic. This keeps you from over-engineering the component tree before you understand the UI shape.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s2',0,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s2',0,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s2-1">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">What's the difference between a Container and a Presentational component, and why does the split matter?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>Presentational:</strong> receives props, renders UI, no side effects. Easy to test, reusable, storybook-friendly.<br><br><strong>Container:</strong> fetches data, manages state, passes props down. Business logic lives here.<br><br>The split makes components independently testable and easier to change the data source without touching the UI.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s2',1,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s2',1,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s2-2">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">How do you decide if a component should be split further or kept together?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a">Split when: <strong>it has more than one reason to change</strong>, it's reused in multiple places, or it's complex enough to need its own test.<br><br>Keep together when: the split creates more "prop drilling" than it saves, or the parts always change together (they share a single concern).</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s2',2,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s2',2,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s2-3">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">Name 3 component patterns and when to use each.</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>Compound Components:</strong> related parts share implicit state via Context. <code>&lt;Select&gt;&lt;Option/&gt;&lt;/Select&gt;</code> — use for UI widgets with linked children.<br><br><strong>Render Props / Children as function:</strong> share logic, let caller control rendering.<br><br><strong>Polymorphic (<code>as</code> prop):</strong> one component, any element — <code>&lt;Button as="a"&gt;</code> — use in design systems.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s2',3,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s2',3,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s2-4">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">How do you structure folders for a large frontend codebase?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a">Prefer <strong>feature-based folders</strong> over type-based. Instead of <code>/components</code>, <code>/hooks</code>, <code>/utils</code> all flat — group by feature: <code>/features/checkout/</code> containing its own components, hooks, and API calls. Each feature exposes a public API via <code>index.ts</code>. Scales without cross-feature coupling.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s2',4,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s2',4,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+  </div>
+  <div class="bottom-nav"><button class="btn" onclick="go('s1')">← Requirements</button><button class="btn primary" onclick="go('s3')">State Flow →</button></div>
+</div>
+
+<!-- ── S3: STATE FLOW ── -->
+<div class="section" id="sec-s3">
+  <div class="sec-head"><div class="sec-num">03</div><div class="sec-info"><div class="sec-title">State Flow Design</div><div class="sec-desc">Where state lives and how it moves.</div></div></div>
+  <div class="sec-prog"><div class="sec-prog-bar"><div class="sec-prog-fill" id="prog-s3"></div></div><div class="sec-prog-label" id="lbl-s3">0 / 5</div></div>
+  <div class="cards-grid" id="cards-s3">
+
+    <div class="flip-card" id="c-s3-0">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">Name 5 types of frontend state and where each should live.</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>Local UI:</strong> <code>useState</code> in component (modal open, input value)<br><strong>URL state:</strong> query params — filters, pagination (shareable)<br><strong>Server state:</strong> React Query / SWR — not Redux<br><strong>Global UI:</strong> Context or Zustand (theme, sidebar, toasts)<br><strong>Form state:</strong> react-hook-form (isolated, validated)</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s3',0,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s3',0,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s3-1">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">What is state colocation and why is it a performance concern?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a">State colocation = keeping state as close to where it's used as possible. State hoisted too high causes the entire subtree below it to re-render on every change — including unrelated siblings. Moving state down to the component that actually uses it eliminates unnecessary renders without any memoization needed.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s3',1,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s3',1,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s3-2">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">What's the main performance pitfall with React Context?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a">Every consumer re-renders when <em>any</em> value in the context object changes — even if it only reads one field. Fix: <strong>split contexts</strong> (separate UserContext from ThemeContext) and <strong>memoize the value</strong> with <code>useMemo</code>. For high-frequency updates, use Zustand or Jotai instead — they have granular subscriptions.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s3',2,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s3',2,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s3-3">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">When do you reach for Redux (or RTK) vs React Query vs Context?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>React Query:</strong> anything fetched from a server. Not Redux.<br><strong>Context:</strong> simple global UI state that changes rarely (theme, locale).<br><strong>Redux/RTK:</strong> complex client-side state machines, middleware needs (logging, analytics), or when DevTools + time-travel debugging are required. Not for server data.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s3',3,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s3',3,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s3-4">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">Draw the state flow for a search-with-filters feature. Where does each piece of state live?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>URL params:</strong> query string, filters, sort, page — so results are shareable and bookmarkable.<br><strong>Local state:</strong> input field value (debounced before updating URL).<br><strong>React Query:</strong> the fetched results keyed by [search, filters] — auto-cancels previous request, caches per unique query.<br><strong>No Redux needed.</strong></div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s3',4,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s3',4,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+  </div>
+  <div class="bottom-nav"><button class="btn" onclick="go('s2')">← Components</button><button class="btn primary" onclick="go('s4')">API Handling →</button></div>
+</div>
+
+<!-- ── S4: API HANDLING ── -->
+<div class="section" id="sec-s4">
+  <div class="sec-head"><div class="sec-num">04</div><div class="sec-info"><div class="sec-title">API Handling Strategy</div><div class="sec-desc">Fetching, caching, errors, and real-time.</div></div></div>
+  <div class="sec-prog"><div class="sec-prog-bar"><div class="sec-prog-fill" id="prog-s4"></div></div><div class="sec-prog-label" id="lbl-s4">0 / 5</div></div>
+  <div class="cards-grid" id="cards-s4">
+
+    <div class="flip-card" id="c-s4-0">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">Cursor vs offset pagination — which do you use for a social feed and why?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>Cursor-based.</strong> A social feed is dynamic — new posts are constantly inserted. Offset pagination would skip or duplicate posts when the underlying data shifts. Cursor holds a stable pointer to a position in the dataset, so the next page always continues from exactly where you left off.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s4',0,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s4',0,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s4-1">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">How do you implement optimistic UI with safe rollback?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>1.</strong> Snapshot the current state before mutating.<br><strong>2.</strong> Immediately update the UI (optimistic).<br><strong>3.</strong> Fire the API call in background.<br><strong>4.</strong> On success: invalidate/sync with server.<br><strong>5.</strong> On error: restore the snapshot (rollback).<br><br>React Query's <code>onMutate / onError / onSettled</code> handles this pattern cleanly.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s4',1,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s4',1,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s4-2">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">WebSocket vs SSE vs polling — pick one for a live notification bell. Justify it.</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>SSE (Server-Sent Events).</strong> Notifications are server → client only, so full-duplex WebSocket is overkill. SSE is plain HTTP, auto-reconnects, works through most proxies, and requires no special library. Use WebSocket only if the feature also needs client → server streaming (e.g., chat).</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s4',2,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s4',2,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s4-3">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">What HTTP cache headers do you set for a hashed JS bundle vs an HTML file?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>Hashed JS/CSS asset:</strong> <code>Cache-Control: public, max-age=31536000, immutable</code> — safe to cache 1 year because the filename changes when content changes.<br><br><strong>HTML file:</strong> <code>Cache-Control: no-cache</code> + <code>ETag</code> — always validate, but return 304 Not Modified if unchanged (no re-download).</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s4',3,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s4',3,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s4-4">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">How do you handle API errors gracefully at a system-wide level?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>React Error Boundary</strong> per feature, not one global one — partial failures, not full-page crashes. Every async fetch has an error state + retry button. Use a global interceptor (Axios) or React Query's <code>onError</code> callback for toast notifications on 5xx. Log errors to Sentry with user context.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s4',4,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s4',4,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+  </div>
+  <div class="bottom-nav"><button class="btn" onclick="go('s3')">← State Flow</button><button class="btn primary" onclick="go('s5')">Performance →</button></div>
+</div>
+
+<!-- ── S5: PERFORMANCE ── -->
+<div class="section" id="sec-s5">
+  <div class="sec-head"><div class="sec-num">05</div><div class="sec-info"><div class="sec-title">Performance Considerations</div><div class="sec-desc">The questions that separate seniors from juniors.</div></div></div>
+  <div class="sec-prog"><div class="sec-prog-bar"><div class="sec-prog-fill" id="prog-s5"></div></div><div class="sec-prog-label" id="lbl-s5">0 / 5</div></div>
+  <div class="cards-grid" id="cards-s5">
+
+    <div class="flip-card" id="c-s5-0">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">What are the 3 Core Web Vitals and what frontend decision most impacts each?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>LCP</strong> (load speed) → preload the hero image, use SSR/SSG, optimize image format.<br><strong>INP</strong> (responsiveness) → break up long JS tasks with <code>scheduler.yield()</code>, code-split.<br><strong>CLS</strong> (visual stability) → always set <code>width</code> and <code>height</code> on images and reserve space for dynamic content.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s5',0,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s5',0,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s5-1">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">When do you virtualize a list and what library do you use?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a">Virtualize any list with <strong>100+ items</strong>. Without it, the DOM holds thousands of nodes — initial render is slow and scrolling is janky. <strong>TanStack Virtual</strong> is the modern choice (supports variable height, horizontal, grid). <code>react-window</code> for simpler fixed-height cases. Only renders what's visible in the viewport.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s5',1,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s5',1,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s5-2">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">Explain code splitting. What's the difference between route-level and component-level splitting?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a"><strong>Route-level:</strong> each page is a separate JS chunk — user only downloads the code for the page they visit. Biggest impact, easiest win.<br><br><strong>Component-level:</strong> heavy components (chart library, rich text editor) loaded on demand with <code>React.lazy()</code>. Do this when the component is rarely used or large (&gt;50KB).<br><br>Both use <code>dynamic import()</code> under the hood.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s5',2,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s5',2,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s5-3">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">What causes layout thrashing and how do you fix it?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a">Layout thrashing = reading a layout property (e.g. <code>offsetHeight</code>) immediately after writing a style, forcing the browser to recalculate layout synchronously in a loop.<br><br><strong>Fix:</strong> batch all reads first, then all writes. Or use <code>requestAnimationFrame</code> to schedule writes separately. The <code>FastDOM</code> library automates this pattern.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s5',3,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s5',3,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+    <div class="flip-card" id="c-s5-4">
+      <div class="flip-front" onclick="flipCard(this.closest('.flip-card'))">
+        <div class="flip-front-left"><div class="flip-hint">Tap to reveal answer</div><div class="flip-q">When do you use a Web Worker? What can't it access?</div></div>
+        <div class="flip-chevron">▾</div>
+      </div>
+      <div class="flip-back"><div class="flip-back-inner">
+        <div class="flip-a">Use Web Workers for CPU-heavy tasks that would block the main thread: large JSON parsing, image/canvas processing, cryptography, data transformations.<br><br><strong>Cannot access:</strong> the DOM, <code>window</code>, <code>document</code>, or <code>localStorage</code>. Communication is only via <code>postMessage</code>.</div>
+        <div class="flip-actions"><button class="flip-btn got" onclick="mark(event,'s5',4,true)">✓ Got it</button><button class="flip-btn missed" onclick="mark(event,'s5',4,false)">✗ Missed it</button></div>
+      </div></div>
+    </div>
+
+  </div>
+  <div class="bottom-nav"><button class="btn" onclick="go('s4')">← API Handling</button><button class="btn primary" onclick="go('s6')">JS Rapid Fire →</button></div>
+</div>
+
+<!-- ── S6: JS RAPID FIRE ── -->
+<div class="section" id="sec-s6">
+  <div class="sec-head"><div class="sec-num">06</div><div class="sec-info"><div class="sec-title">JS Rapid Fire</div><div class="sec-desc">Tap a question to reveal the answer. Quick-fire recall.</div></div></div>
+  <div class="rf-list">
+
+    <div class="rf-item" onclick="this.classList.toggle('open')">
+      <div class="rf-q"><span class="rf-q-text">What is the event loop? What order do tasks run in?</span><span class="rf-toggle">+</span></div>
+      <div class="rf-a"><div class="rf-a-inner">The event loop processes one task from the task queue per tick. Order per tick: <strong>sync code → all microtasks → one macrotask → render</strong>. Microtasks: Promise callbacks, <code>queueMicrotask</code>. Macrotasks: <code>setTimeout</code>, <code>setInterval</code>, UI events.</div></div>
+    </div>
+
+    <div class="rf-item" onclick="this.classList.toggle('open')">
+      <div class="rf-q"><span class="rf-q-text">What's the difference between <code>==</code> and <code>===</code>?</span><span class="rf-toggle">+</span></div>
+      <div class="rf-a"><div class="rf-a-inner"><code>==</code> coerces types before comparing (<code>0 == false</code> is true). <code>===</code> checks value AND type with no coercion. Always use <code>===</code>.</div></div>
+    </div>
+
+    <div class="rf-item" onclick="this.classList.toggle('open')">
+      <div class="rf-q"><span class="rf-q-text">Explain closures in one sentence, then give a use case.</span><span class="rf-toggle">+</span></div>
+      <div class="rf-a"><div class="rf-a-inner">A closure is a function that retains access to its outer scope variables even after the outer function has returned. Use case: <code>useCallback</code> hook — the callback closes over the latest state/props it needs.</div></div>
+    </div>
+
+    <div class="rf-item" onclick="this.classList.toggle('open')">
+      <div class="rf-q"><span class="rf-q-text">What is <code>this</code> and when is it unpredictable?</span><span class="rf-toggle">+</span></div>
+      <div class="rf-a"><div class="rf-a-inner"><code>this</code> is determined by how a function is called, not where it's defined. Unpredictable in callbacks (loses context) and event handlers. Arrow functions fix this — they inherit <code>this</code> from the enclosing lexical scope.</div></div>
+    </div>
+
+    <div class="rf-item" onclick="this.classList.toggle('open')">
+      <div class="rf-q"><span class="rf-q-text">What does <code>Promise.all</code> vs <code>Promise.allSettled</code> do differently?</span><span class="rf-toggle">+</span></div>
+      <div class="rf-a"><div class="rf-a-inner"><code>Promise.all</code> — resolves when ALL resolve; rejects immediately if ANY rejects (fail fast). <code>Promise.allSettled</code> — waits for ALL, reports each outcome (fulfilled or rejected). Use <code>allSettled</code> when you want results from all even if some fail.</div></div>
+    </div>
+
+    <div class="rf-item" onclick="this.classList.toggle('open')">
+      <div class="rf-q"><span class="rf-q-text">What is debouncing? Write it in one line of thought.</span><span class="rf-toggle">+</span></div>
+      <div class="rf-a"><div class="rf-a-inner">Delay executing a function until N ms have passed since the last call. Each new call resets the timer. Used for search-as-you-type — waits for the user to pause before firing the API request.</div></div>
+    </div>
+
+    <div class="rf-item" onclick="this.classList.toggle('open')">
+      <div class="rf-q"><span class="rf-q-text">What's the difference between <code>var</code>, <code>let</code>, and <code>const</code>?</span><span class="rf-toggle">+</span></div>
+      <div class="rf-a"><div class="rf-a-inner"><code>var</code>: function-scoped, hoisted with <code>undefined</code>. <code>let</code>: block-scoped, hoisted but in temporal dead zone. <code>const</code>: block-scoped, must be initialized, binding cannot be reassigned (but the object it points to is still mutable).</div></div>
+    </div>
+
+    <div class="rf-item" onclick="this.classList.toggle('open')">
+      <div class="rf-q"><span class="rf-q-text">What is prototype chain / prototypal inheritance?</span><span class="rf-toggle">+</span></div>
+      <div class="rf-a"><div class="rf-a-inner">Every JS object has a hidden <code>[[Prototype]]</code> link. When you access a property, JS walks up the chain until it finds it or hits <code>null</code>. <code>class</code> syntax is syntax sugar over this — <code>extends</code> sets up the prototype chain.</div></div>
+    </div>
+
+    <div class="rf-item" onclick="this.classList.toggle('open')">
+      <div class="rf-q"><span class="rf-q-text">What is a memory leak in JS? Name 2 common causes.</span><span class="rf-toggle">+</span></div>
+      <div class="rf-a"><div class="rf-a-inner">Memory that is no longer needed but is not released because something still holds a reference. Common causes: <strong>1.</strong> Event listeners not removed on component unmount. <strong>2.</strong> Closures holding references to large objects in setInterval callbacks that are never cleared.</div></div>
+    </div>
+
+    <div class="rf-item" onclick="this.classList.toggle('open')">
+      <div class="rf-q"><span class="rf-q-text">Explain async/await vs Promises — are they different?</span><span class="rf-toggle">+</span></div>
+      <div class="rf-a"><div class="rf-a-inner"><code>async/await</code> is syntax sugar over Promises — it desugars to <code>.then()</code> chains. <code>await</code> pauses execution of the current async function but does NOT block the main thread — it suspends and returns control to the event loop. Error handling via <code>try/catch</code> instead of <code>.catch()</code>.</div></div>
+    </div>
+
+  </div>
+  <div class="bottom-nav"><button class="btn" onclick="go('s5')">← Performance</button><button class="btn primary" onclick="go('s7')">React Scenarios →</button></div>
+</div>
+
+<!-- ── S7: REACT SCENARIOS ── -->
+<div class="section" id="sec-s7">
+  <div class="sec-head"><div class="sec-num">07</div><div class="sec-info"><div class="sec-title">React Scenario Questions</div><div class="sec-desc">Situations thrown at you mid-interview. Think out loud.</div></div></div>
+  <div class="scenario-list">
+
+    <div class="scenario" id="sc0">
+      <div class="sc-head" onclick="toggleScenario('sc0')">
+        <div><div class="sc-badge react">React</div><div class="sc-q-text">Your component re-renders 10 times on every keystroke in a form. How do you diagnose and fix it?</div></div>
+        <div class="sc-expand">+</div>
+      </div>
+      <div class="sc-body"><div class="sc-body-inner">
+        <h4>Diagnose</h4>
+        <p>Use React DevTools Profiler to see what triggered each render. Check if parent state changes are propagating down, or if a Context value is changing.</p>
+        <h4>Fix order</h4>
+        <ul>
+          <li>Colocate form state — move input state into the form component itself, away from the parent</li>
+          <li>If using Context, split state context from dispatch context</li>
+          <li>For expensive child components, wrap in <code>React.memo</code></li>
+          <li>Consider react-hook-form — it isolates field re-renders to only the changed field</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="scenario" id="sc1">
+      <div class="sc-head" onclick="toggleScenario('sc1')">
+        <div><div class="sc-badge react">React</div><div class="sc-q-text">You have a stale closure bug in a useEffect. A counter value is always 0 inside the callback. How do you fix it?</div></div>
+        <div class="sc-expand">+</div>
+      </div>
+      <div class="sc-body"><div class="sc-body-inner">
+        <h4>The cause</h4>
+        <p>The effect closed over the initial value of <code>count</code> (0) because <code>count</code> was not in the dependency array. Every time the effect runs, it "remembers" the stale 0.</p>
+        <h4>Fixes</h4>
+        <ul>
+          <li>Add <code>count</code> to the dependency array — but this recreates the interval on every change</li>
+          <li>Better: use the <strong>functional updater form</strong>: <code>setCount(c => c + 1)</code> — reads current state without needing to close over it</li>
+          <li>Or use a <code>useRef</code> to hold the latest value and read from it inside the callback</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="scenario" id="sc2">
+      <div class="sc-head" onclick="toggleScenario('sc2')">
+        <div><div class="sc-badge react">React</div><div class="sc-q-text">How do you share logic between 5 components that all fetch + display a user profile but with slightly different UIs?</div></div>
+        <div class="sc-expand">+</div>
+      </div>
+      <div class="sc-body"><div class="sc-body-inner">
+        <h4>Answer</h4>
+        <p>Extract a <strong>custom hook</strong> <code>useUserProfile(userId)</code> that handles the fetch, loading, and error state. Each of the 5 components calls the hook and renders its own UI with the returned data.</p>
+        <p>The hook is the single source of data logic. The components are pure rendering concerns. React Query inside the hook also deduplicates the network request — all 5 components calling the hook with the same <code>userId</code> result in a single fetch.</p>
+      </div></div>
+    </div>
+
+    <div class="scenario" id="sc3">
+      <div class="sc-head" onclick="toggleScenario('sc3')">
+        <div><div class="sc-badge react">React</div><div class="sc-q-text">A modal opens but keyboard users can Tab behind it. How do you fix this?</div></div>
+        <div class="sc-expand">+</div>
+      </div>
+      <div class="sc-body"><div class="sc-body-inner">
+        <h4>The full fix</h4>
+        <ul>
+          <li><strong>Move focus inside modal</strong> on open: <code>modalRef.current.focus()</code></li>
+          <li><strong>Trap Tab/Shift+Tab</strong>: collect all focusable elements inside modal, intercept Tab key, wrap around at edges</li>
+          <li><strong>Escape key</strong> closes the modal</li>
+          <li><strong>Return focus</strong> to the trigger element on close</li>
+          <li>Add <code>role="dialog"</code>, <code>aria-modal="true"</code>, <code>aria-labelledby</code> pointing to the modal's heading</li>
+        </ul>
+        <p>Use <code>@radix-ui/react-dialog</code> or <code>react-aria</code> — they handle all of this correctly out of the box.</p>
+      </div></div>
+    </div>
+
+    <div class="scenario" id="sc4">
+      <div class="sc-head" onclick="toggleScenario('sc4')">
+        <div><div class="sc-badge react">React</div><div class="sc-q-text">How do you avoid prop drilling without reaching for global state?</div></div>
+        <div class="sc-expand">+</div>
+      </div>
+      <div class="sc-body"><div class="sc-body-inner">
+        <h4>Options in order</h4>
+        <ul>
+          <li><strong>Component composition:</strong> pass the already-rendered child element as a prop instead of threading data through intermediaries</li>
+          <li><strong>Scoped Context:</strong> a Context provider that wraps only the feature subtree that needs the data — not the whole app</li>
+          <li><strong>Custom hook:</strong> if components are always co-located, a shared hook that reads from the same React Query cache eliminates the need to prop-drill fetched data entirely</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="scenario" id="sc5">
+      <div class="sc-head" onclick="toggleScenario('sc5')">
+        <div><div class="sc-badge react">React</div><div class="sc-q-text">Your app's initial bundle is 2MB. What do you do?</div></div>
+        <div class="sc-expand">+</div>
+      </div>
+      <div class="sc-body"><div class="sc-body-inner">
+        <h4>Diagnosis first</h4>
+        <p>Run <code>webpack-bundle-analyzer</code> or <code>vite-bundle-visualizer</code> to find what's large.</p>
+        <h4>Typical fixes</h4>
+        <ul>
+          <li>Route-level code splitting — each page as its own chunk</li>
+          <li>Lazy-load heavy libraries (chart, date picker, editor) with <code>React.lazy</code></li>
+          <li>Replace heavy dependencies — moment.js (67KB) → date-fns (tree-shakeable)</li>
+          <li>Check for duplicate packages (<code>npm dedupe</code>)</li>
+          <li>Enable tree-shaking — import named exports, not entire modules</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+  <div class="bottom-nav"><button class="btn" onclick="go('s6')">← JS Rapid Fire</button><button class="btn primary" onclick="go('s8')">Machine Coding →</button></div>
+</div>
+
+<!-- ── S8: MACHINE CODING ── -->
+<div class="section" id="sec-s8">
+  <div class="sec-head"><div class="sec-num">08</div><div class="sec-info"><div class="sec-title">Machine Coding Mock</div><div class="sec-desc">Real problems asked in 45-minute coding rounds. Review the approach.</div></div></div>
+  <div class="scenario-list">
+
+    <div class="scenario" id="mc0">
+      <div class="sc-head" onclick="toggleScenario('mc0')">
+        <div><div class="sc-badge machine">Machine Coding</div><div class="sc-q-text">Build a reusable Autocomplete / Search component with debounced API calls and keyboard navigation.</div></div>
+        <div class="sc-expand">+</div>
+      </div>
+      <div class="sc-body"><div class="sc-body-inner">
+        <h4>Key requirements to cover</h4>
+        <ul>
+          <li>Debounce the input (300ms) before triggering fetch</li>
+          <li>Cancel previous in-flight requests (AbortController)</li>
+          <li>Keyboard: ArrowDown/ArrowUp to navigate, Enter to select, Escape to close</li>
+          <li>Accessibility: <code>role="combobox"</code>, <code>aria-expanded</code>, <code>aria-activedescendant</code> on input</li>
+          <li>Loading state while fetching, empty state if no results</li>
+          <li>Click outside to close (document mousedown listener, cleaned up on unmount)</li>
+        </ul>
+        <h4>State needed</h4>
+        <p><code>query</code> (input), <code>results</code> (array), <code>isOpen</code> (dropdown visible), <code>activeIndex</code> (highlighted item), <code>isLoading</code>.</p>
+      </div></div>
+    </div>
+
+    <div class="scenario" id="mc1">
+      <div class="sc-head" onclick="toggleScenario('mc1')">
+        <div><div class="sc-badge machine">Machine Coding</div><div class="sc-q-text">Implement an Infinite Scroll list that fetches the next page when the user reaches the bottom.</div></div>
+        <div class="sc-expand">+</div>
+      </div>
+      <div class="sc-body"><div class="sc-body-inner">
+        <h4>Approach</h4>
+        <ul>
+          <li>Place an invisible <code>div</code> sentinel at the bottom of the list</li>
+          <li>Use <code>IntersectionObserver</code> to watch the sentinel — when it enters the viewport, fetch next page</li>
+          <li>Accumulate pages in state: <code>setItems(prev => [...prev, ...newItems])</code></li>
+          <li>Show a spinner while loading, stop observing when <code>hasMore</code> is false</li>
+          <li>Disconnect observer in the <code>useEffect</code> cleanup</li>
+        </ul>
+        <h4>Avoid scroll events</h4>
+        <p>Never use <code>onScroll</code> for this — it fires 60fps and must be throttled. IntersectionObserver is browser-optimized and fires only on threshold crossings.</p>
+      </div></div>
+    </div>
+
+    <div class="scenario" id="mc2">
+      <div class="sc-head" onclick="toggleScenario('mc2')">
+        <div><div class="sc-badge machine">Machine Coding</div><div class="sc-q-text">Build a Toast / Notification system that can be triggered from anywhere in the app.</div></div>
+        <div class="sc-expand">+</div>
+      </div>
+      <div class="sc-body"><div class="sc-body-inner">
+        <h4>Architecture</h4>
+        <ul>
+          <li>A <code>ToastContext</code> holds the toast queue and exposes <code>addToast()</code></li>
+          <li><code>ToastProvider</code> wraps the app, renders a <code>ToastContainer</code> in a portal (<code>ReactDOM.createPortal</code>) so it's always on top</li>
+          <li>Each toast has an <code>id</code>, <code>message</code>, <code>type</code>, and auto-dismisses after a timeout</li>
+          <li>Remove via <code>setToasts(prev => prev.filter(t => t.id !== id))</code></li>
+        </ul>
+        <h4>Accessibility</h4>
+        <p>The container div needs <code>role="status"</code> and <code>aria-live="polite"</code> so screen readers announce new toasts automatically.</p>
+      </div></div>
+    </div>
+
+    <div class="scenario" id="mc3">
+      <div class="sc-head" onclick="toggleScenario('mc3')">
+        <div><div class="sc-badge machine">Machine Coding</div><div class="sc-q-text">Implement a Star Rating component that is accessible and works with keyboard.</div></div>
+        <div class="sc-expand">+</div>
+      </div>
+      <div class="sc-body"><div class="sc-body-inner">
+        <h4>Approach</h4>
+        <ul>
+          <li>Use radio inputs (visually hidden) — browsers give you keyboard navigation for free</li>
+          <li>Each star is a <code>&lt;label&gt;</code> for a <code>&lt;input type="radio"&gt;</code></li>
+          <li>Hover state fills stars up to the hovered index (CSS <code>:hover ~ label</code> trick in reverse order)</li>
+          <li>Selected value controlled via <code>value</code> prop + <code>onChange</code> for a reusable controlled component</li>
+        </ul>
+        <h4>The radio trick is key</h4>
+        <p>This is the answer that separates candidates — native radio inputs give you Tab focus, Arrow key navigation, and screen reader announcement without writing a single line of keyboard event code.</p>
+      </div></div>
+    </div>
+
+  </div>
+  <div class="bottom-nav"><button class="btn" onclick="go('s7')">← React Scenarios</button><button class="btn primary" onclick="go('s9')">System Design Mock →</button></div>
+</div>
+
+<!-- ── S9: SYSTEM DESIGN MOCK ── -->
+<div class="section" id="sec-s9">
+  <div class="sec-head"><div class="sec-num">09</div><div class="sec-info"><div class="sec-title">Frontend System Design Mock</div><div class="sec-desc">Full design questions. Walk through your thinking framework.</div></div></div>
+  <div class="scenario-list">
+
+    <div class="scenario" id="sd0">
+      <div class="sc-head" onclick="toggleScenario('sd0')">
+        <div><div class="sc-badge system">System Design</div><div class="sc-q-text">Design a YouTube-like video feed with autoplay, lazy loading thumbnails, and infinite scroll.</div></div>
+        <div class="sc-expand">+</div>
+      </div>
+      <div class="sc-body"><div class="sc-body-inner">
+        <h4>Clarify first</h4>
+        <p>Number of videos per fetch? Autoplay only on hover or on scroll-into-view? Desktop and mobile?</p>
+        <h4>Key decisions</h4>
+        <ul>
+          <li><strong>Infinite scroll:</strong> Cursor pagination + IntersectionObserver sentinel</li>
+          <li><strong>Thumbnails:</strong> Lazy-load with <code>loading="lazy"</code> on <code>&lt;img&gt;</code>, serve WebP from CDN, blur-up placeholder</li>
+          <li><strong>Autoplay preview:</strong> IntersectionObserver on each card — when 50% in viewport, load and play muted video; pause on exit. Throttle to only one video playing at a time</li>
+          <li><strong>Performance:</strong> Virtualize the grid after 50 cards to prevent DOM bloat</li>
+          <li><strong>State:</strong> React Query with infinite query — each page cursor-based</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="scenario" id="sd1">
+      <div class="sc-head" onclick="toggleScenario('sd1')">
+        <div><div class="sc-badge system">System Design</div><div class="sc-q-text">Design a Google Docs-like collaborative text editor for the frontend.</div></div>
+        <div class="sc-expand">+</div>
+      </div>
+      <div class="sc-body"><div class="sc-body-inner">
+        <h4>Hard parts to address</h4>
+        <ul>
+          <li><strong>Real-time sync:</strong> WebSocket — bidirectional, persistent</li>
+          <li><strong>Conflict resolution:</strong> Operational Transformation (OT) or CRDTs (conflict-free replicated data types). Mention you'd use a library like Yjs or ShareDB</li>
+          <li><strong>Cursor positions:</strong> Each user's cursor broadcast via WebSocket, rendered as colored overlays</li>
+          <li><strong>Offline:</strong> Buffer changes locally, sync on reconnect with merge</li>
+          <li><strong>Performance:</strong> Don't re-render the entire document on every keystroke — use a purpose-built editor (Slate.js, ProseMirror, Tiptap)</li>
+        </ul>
+        <h4>Don't try to build OT from scratch</h4>
+        <p>The right answer is knowing that this problem is solved by libraries (Yjs, Automerge) and explaining why the problem is hard — not hand-waving a custom solution.</p>
+      </div></div>
+    </div>
+
+    <div class="scenario" id="sd2">
+      <div class="sc-head" onclick="toggleScenario('sd2')">
+        <div><div class="sc-badge system">System Design</div><div class="sc-q-text">Design a multi-step checkout flow (cart → address → payment → confirmation).</div></div>
+        <div class="sc-expand">+</div>
+      </div>
+      <div class="sc-body"><div class="sc-body-inner">
+        <h4>Key decisions</h4>
+        <ul>
+          <li><strong>URL per step:</strong> <code>/checkout/cart</code>, <code>/checkout/address</code>, etc. — back button works, deep-linking works</li>
+          <li><strong>State:</strong> Shared checkout state via Context (or Zustand) scoped to the checkout feature — not global app state</li>
+          <li><strong>Validation:</strong> Validate each step on "Next" before allowing progression. react-hook-form per step</li>
+          <li><strong>Persistence:</strong> Persist to localStorage so a refresh doesn't lose cart. Clear on order completion</li>
+          <li><strong>Payment:</strong> Never handle raw card numbers — use Stripe Elements (hosted iframe, PCI compliant)</li>
+          <li><strong>Error recovery:</strong> Payment failure returns to payment step with error, not the start</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="scenario" id="sd3">
+      <div class="sc-head" onclick="toggleScenario('sd3')">
+        <div><div class="sc-badge system">System Design</div><div class="sc-q-text">Design a live sports scoreboard that updates in real-time for thousands of concurrent users.</div></div>
+        <div class="sc-expand">+</div>
+      </div>
+      <div class="sc-body"><div class="sc-body-inner">
+        <h4>Architecture walkthrough</h4>
+        <ul>
+          <li><strong>Delivery:</strong> SSE — scores are server-push only, no need for WebSocket. Scales better, works through CDN</li>
+          <li><strong>CDN edge:</strong> Static shell served from CDN with near-zero latency. Only the score stream is dynamic</li>
+          <li><strong>Update strategy:</strong> Receive score event → update only the changed game entry in state (not re-render everything)</li>
+          <li><strong>Throttle renders:</strong> If 100 games update simultaneously, batch DOM updates with <code>requestAnimationFrame</code> or React 18's automatic batching</li>
+          <li><strong>Reconnect:</strong> SSE auto-reconnects with <code>Last-Event-ID</code> header so missed updates are replayed</li>
+        </ul>
+        <h4>Scale point to mention</h4>
+        <p>The browser is just a display layer — the hard scaling problem is the pub/sub infrastructure on the server (Redis, Kafka). Mention this awareness.</p>
+      </div></div>
+    </div>
+
+  </div>
+  <div class="bottom-nav"><button class="btn" onclick="go('s8')">← Machine Coding</button><button class="btn primary" onclick="go('hero')">↑ Back to Top</button></div>
+</div>
+
+</main>
+</div>
+
+<script>
+// ── STATE ──
+const scoreState = {};
+let totalMarkable = 0, gotCount = 0;
+
+// Count all flip cards on load
+document.querySelectorAll('.flip-card').forEach(c => totalMarkable++);
+
+// ── NAVIGATION ──
+function go(id) {
+  document.querySelectorAll('.section, .hero-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const sec = document.getElementById('sec-' + id);
+  if (sec) { sec.classList.add('active'); window.scrollTo(0,0); }
+  const nav = document.querySelector(`[data-sec="${id}"]`);
+  if (nav) nav.classList.add('active');
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('visible');
+  document.getElementById('menuBtn').textContent = '☰ Menu';
+}
+
+// ── FLIP CARDS ──
+function flipCard(card) {
+  card.classList.toggle('flipped');
+}
+
+// ── MARK GOT / MISSED ──
+function mark(e, sec, idx, got) {
+  e.stopPropagation();
+  const card = document.getElementById(`c-${sec}-${idx}`);
+  if (!card) return;
+  const key = `${sec}-${idx}`;
+  if (scoreState[key] !== undefined) return; // already marked
+  scoreState[key] = got;
+  if (got) { card.classList.add('marked-got'); gotCount++; }
+  else card.classList.add('marked-missed');
+  // disable both buttons
+  card.querySelectorAll('.flip-btn').forEach(b => b.disabled = true);
+  // update section progress
+  updateSectionProg(sec);
+  updateGlobalScore();
+}
+
+function updateSectionProg(sec) {
+  const allCards = document.querySelectorAll(`#cards-${sec} .flip-card`);
+  const total = allCards.length;
+  const done = document.querySelectorAll(`#cards-${sec} .flip-card.marked-got, #cards-${sec} .flip-card.marked-missed`).length;
+  const pct = total ? (done / total) * 100 : 0;
+  const fill = document.getElementById(`prog-${sec}`);
+  const lbl = document.getElementById(`lbl-${sec}`);
+  if (fill) fill.style.width = pct + '%';
+  if (lbl) lbl.textContent = `${done} / ${total}`;
+  // mark nav item done
+  if (done === total) {
+    const nav = document.querySelector(`[data-sec="${sec}"]`);
+    if (nav) nav.classList.add('done');
+  }
+}
+
+function updateGlobalScore() {
+  const marked = Object.keys(scoreState).length;
+  const pct = totalMarkable ? (gotCount / totalMarkable) * 100 : 0;
+  document.getElementById('scoreGot').textContent = gotCount;
+  document.getElementById('scoreTotal').textContent = marked;
+  // ring: circumference = 2*pi*18 ≈ 113
+  const offset = 113 - (113 * (gotCount / totalMarkable));
+  document.getElementById('ringFill').style.strokeDashoffset = offset;
+  document.getElementById('ringPct').textContent = Math.round(pct) + '%';
+}
+
+// ── SCENARIO EXPAND ──
+function toggleScenario(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+// ── MOBILE MENU ──
+function toggleMenu() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('overlay');
+  const btn = document.getElementById('menuBtn');
+  const open = sb.classList.toggle('open');
+  ov.classList.toggle('visible', open);
+  btn.textContent = open ? '✕ Close' : '☰ Menu';
+}
+</script>
+</body>
+</html>
